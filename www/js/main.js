@@ -1,18 +1,36 @@
-function goToPage(page) {
-    window.location.href=page;
+function goToPage(page, param) {
+    if(param)
+        window.location.href=page+getId(param);
+    else
+        window.location.href=page;
 }
 function addEvent(redirect) {
     var name = document.getElementById("eventName").value;
     var date = document.getElementById("date").value;
     var fee = document.getElementById("fee").value;
     sql = "INSERT INTO event (event_name, date, fee) VALUES ('"+name+"','"+date+"','"+fee+"')";
-    db = window.openDatabase("swgc", "1.0", "swgc", 1000000);
-    db.transaction(executeSql, errorCB, goToPage('index.html'));
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
+    db.transaction(executeSql, errorCB, goToPage(redirect));
+}
+function addPerson() {
+    var name = document.getElementById("name").value;
+    var date = document.getElementById("email").value;
+    var fee = document.getElementById("skill").value;
+    sql = "INSERT INTO participant (name, email, skill) VALUES ('"+name+"','"+email+"','"+skill+"')";
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
+    db.transaction(executeSql, errorCB, registerUser);
+    var pid = results.insertId;    
+}
+function registerUser(){
+    sql = "INSERT INTO participant_event (pid, event_id) VALUES ('"+pid+"'','"+getId('id')+"')";
+    db.transaction(executeSql, errorCB, goToPage('registration.html?id='+getId('id')+'&p='pe_id);
+    //TODO get pe_id
+    //TODO redirect to registration page
 }
 function getEvents(){
     var sql = "SELECT * FROM event ORDER BY date DESC";
     var result;
-    db = window.openDatabase("swgc", "1.0", "swgc", 1000000);
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
     db.transaction(
         function (tx,errorCB){
             tx.executeSql(sql, [], 
@@ -52,7 +70,7 @@ function queryDB(tx,errorCB){
 function debugAlert(txt){
     alert(txt);
 }
-function getId() {
+function getId(param) {
     var $_GET = {};
     document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function () {
         function decode(s) {
@@ -60,5 +78,5 @@ function getId() {
         }
         $_GET[decode(arguments[1])] = decode(arguments[2]);
     });
-   return $_GET["id"];
+   return $_GET[param];
 }
