@@ -10,7 +10,15 @@ function addEvent(redirect) {
     var fee = document.getElementById("fee").value;
     sql = "INSERT INTO event (event_name, date, fee) VALUES ('"+name+"','"+date+"','"+fee+"')";
     db = window.openDatabase("swgc", version, "swgc", 1000000);
-    db.transaction(executeSql, errorCB, goToPage(redirect));
+    db.transaction(
+        function (tx){
+            tx.executeSql(sql, [], 
+                function (tx, results){
+                    goToPage('event.html?id='+results.insertId);
+                }
+            )
+        }
+    ,errorCB);
 }
 function addPerson() {
     var name = document.getElementById("name").value;
@@ -18,21 +26,37 @@ function addPerson() {
     var fee = document.getElementById("skill").value;
     sql = "INSERT INTO participant (name, email, skill) VALUES ('"+name+"','"+email+"','"+skill+"')";
     db = window.openDatabase("swgc", version, "swgc", 1000000);
-    db.transaction(executeSql, errorCB, registerUser);
-    var pid = results.insertId;    
+    db.transaction(
+        function (tx){
+            tx.executeSql(sql, [],
+                function (tx, results){
+                    registerUser(results);
+                }
+        )}
+    , errorCB);
+       
 }
-function registerUser(){
-    sql = "INSERT INTO participant_event (pid, event_id) VALUES ('"+pid+"'','"+getId('id')+"')";
-    db.transaction(executeSql, errorCB, goToPage('registration.html?id='+getId('id')+'&p='pe_id);
-    //TODO get pe_id
-    //TODO redirect to registration page
+function registerUser(results, pid){
+    if(pid.length == 0)
+        var pid = results.insertId; 
+    sql = "INSERT INTO participant_event (pid, event_id) VALUES ('"+pid+"','"+getId('id')+"')";
+    db.transaction(
+        function (tx){
+            tx.executeSql(sql, [],
+                function (tx, result){
+                    var pe_id = result.insertId;
+                    goToPage('registration.html?id='+getId('id')+'&pe='+pe_id)
+            }
+        )}
+    , errorCB);
 }
+
 function getEvents(){
     var sql = "SELECT * FROM event ORDER BY date DESC";
     var result;
     db = window.openDatabase("swgc", version, "swgc", 1000000);
     db.transaction(
-        function (tx,errorCB){
+        function (tx){
             tx.executeSql(sql, [], 
                 function (tx, result){
                     for (var i=0; i<result.rows.length; i++){ 
@@ -48,16 +72,32 @@ function getEvents(){
 function getParticipants(){
     var sql = "SELECT * FROM participant_event pe JOIN participant p ON p.pid=pe.pid ORDER BY p.name";
     var result;
-    db = window.openDatabase("swgc", "1.0", "swgc", 1000000);
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
     db.transaction(
         function (tx,errorCB){
             tx.executeSql(sql, [], 
                 function (tx, result){
                     for (var i=0; i<result.rows.length; i++){ 
                         var row=result.rows.item(i);
-                        //alert(" " + row['event_id']+" " + row['event_name']+" " + row['date']+" ");
                         var stringout = "<div onClick=goToPage('registration.html?id="+row['pe_id']+"')>" + row['name']+"</div>"; 
-                        document.getElementById("participantEventList").innerHTML = document.getElementById("participantEventList").innerHTML +stringout;
+                        document.getElementById("participantList").innerHTML = document.getElementById("participantList").innerHTML +stringout;
+                    } 
+                }            
+            , errorCB);
+        });
+}
+function getAllParticipants(){
+    var sql = "SELECT * FROM participant p ORDER BY p.name";
+    var result;
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
+    db.transaction(
+        function (tx,errorCB){
+            tx.executeSql(sql, [], 
+                function (tx, result){
+                    for (var i=0; i<result.rows.length; i++){ 
+                        var row=result.rows.item(i);
+                        var stringout = "<div onClick=registerUser('0','"+row['pid']+"')>"+row['name']+"</div>"; 
+                        document.getElementById("allParticipantsList").innerHTML = document.getElementById("allParticipantsList").innerHTML +stringout;
                     } 
                 }            
             , errorCB);
