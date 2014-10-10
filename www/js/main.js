@@ -8,7 +8,10 @@ function addEvent(redirect) {
     var name = document.getElementById("eventName").value;
     var date = document.getElementById("date").value;
     var fee = document.getElementById("fee").value;
-    sql = "INSERT INTO event (event_name, date, fee) VALUES ('"+name+"','"+date+"','"+fee+"')";
+    if(getId('id') > 0)
+        sql = "UPDATE event event_name='"+name+"', date='"+date+"', fee='"+fee+"' WHERE event_id='"+getId('id')+"'";
+    else
+        sql = "INSERT INTO event (event_name, date, fee) VALUES ('"+name+"','"+date+"','"+fee+"')";
     db = window.openDatabase("swgc", version, "swgc", 1000000);
     db.transaction(
         function (tx){
@@ -64,6 +67,27 @@ function getEvents(){
                         //alert(" " + row['event_id']+" " + row['event_name']+" " + row['date']+" ");
                         var stringout = "<div onClick=goToPage('event.html?id="+row['event_id']+"')>" + row['event_id']+" " + row['event_name']+" " + row['date'] + "</div>"; 
                         document.getElementById("eventList").innerHTML = document.getElementById("eventList").innerHTML +stringout;
+                    } 
+                }            
+            , errorCB);
+        });
+}
+function getEvent(id){
+    var sql = "SELECT * FROM event WHERE event_id='"+id+"'";
+    var result;
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
+    db.transaction(
+        function (tx){
+            tx.executeSql(sql, [], 
+                function (tx, result){
+                    for (var i=0; i<result.rows.length; i++){ 
+                        var row=result.rows.item(i);
+                        //alert(" " + row['event_id']+" " + row['event_name']+" " + row['date']+" ");
+                        document.getElementById("eventName").value=row['event_name'];
+                        document.getElementById("date").value=row['date'];
+                        document.getElementById("fee").value=row['fee'];
+                        document.getElementById("fee").value=row['fee'];
+                        
                     } 
                 }            
             , errorCB);
