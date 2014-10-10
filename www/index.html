@@ -17,7 +17,7 @@
         <title>Hello World</title>
     </head>
     <body onload="onDeviceReady()">
-        <div id="container"></div>
+        <div id="container">
         
         <!-- Header Template-->
         <script>
@@ -37,19 +37,16 @@
             </div>
             <div id='eventList'></div>
         </div>
-        <!-- -------------------- -->
-
-        
-        <!-- Footer Template-->
+      
         <script>
             var link = document.querySelector('link[rel="import"]');
             var template = link.import.querySelector('template[id="footer"');
             var clone = document.importNode(template.content, true);
             document.querySelector('#container').appendChild(clone);
         </script>
-        <!-- -------------------- -->
+       
         
-        
+        </div>
         <!-- DO NOT EDIT BELOW HERE-->
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>

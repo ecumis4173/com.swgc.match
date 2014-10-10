@@ -29,11 +29,10 @@
         <script type="text/javascript" src="js/database.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
         <link rel="import" href="templates.html" id="templates">
-        <meta name="msapplication-tap-highlight" content="no" />
         <title>Hello World</title>
     </head>
     <body onload="onDeviceReady()">
-        <div id="container"></div>
+        <div id="container">
         
         <!-- Header Template-->
         <script>
@@ -52,9 +51,7 @@
             <div id=report       onClick="goToPage('report.html?id=', 'id')">       Report</div>
             <div id=settings     onClick="goToPage('addEvent.html?id=', 'id')">     Settings</div>
         </div>
-        <!-- -------------------- -->
-
-        
+       
         <!-- Footer Template-->
         <script>
             var link = document.querySelector('link[rel="import"]');
@@ -62,7 +59,7 @@
             var clone = document.importNode(template.content, true);
             document.querySelector('#container').appendChild(clone);
         </script>
-        <!-- -------------------- -->
+        </div>
         
         
         <!-- DO NOT EDIT BELOW HERE-->
