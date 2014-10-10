@@ -49,9 +49,9 @@
         <div id='content' class='content'>
             <div id='eventForm' class='event form'>
                 Name:
-                <input type="text" id="name" size="25" value="">
+                <input type="text" id="name" size="25" value="" placeholder='Full Name'>
                 Email:
-                <input type="text" id="email" size="25" value="">
+                <input type="text" id="email" size="25" value="" placeholder=Email Address'>
                 Skill Level:
                 <select id="skill">
                     <option value="1">Master</option>
@@ -60,14 +60,11 @@
                 </select>
             </div>
             <div id='addPersonButton' class='buttons'>
-                <div><input type="button" name="cancel" value="Cancel" onClick="goToPage('index.html?id=', 'id')"></div>
-                <div><input type="button" id='add' name="add" value="Add" onClick="addPerson('registration.html?id=', 'id')"></div>
-            </div>
+                <div><input type="button" class="btn-primary" name="cancel" value="Cancel" onClick="goToPage('index.html?id=', 'id')"></div>
+                <div><input type="button" class="btn-primary" id='add' name="add" value="Add" onClick="addPerson('registration.html?id=', 'id')"></div>
+                 </div>
         </div>
-        <!-- -------------------- -->
-        <!-- -------------------- -->
-
-        
+        <!        
         <!-- Footer Template-->
         <script>
             var link = document.querySelector('link[rel="import"]');
