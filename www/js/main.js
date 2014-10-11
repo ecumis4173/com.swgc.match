@@ -33,15 +33,14 @@ function addPerson() {
         function (tx){
             tx.executeSql(sql, [],
                 function (tx, results){
-                    registerUser(results);
+                    var pid = results.insertId;
+                    registerUser(pid);
                 }
         )}
     , errorCB);
        
 }
-function registerUser(results, pid){
-    if(pid.length == 0)
-        var pid = results.insertId; 
+function registerUser(pid){
     sql = "INSERT INTO participant_event (pid, event_id) VALUES ('"+pid+"','"+getId('id')+"')";
     db.transaction(
         function (tx){
@@ -111,7 +110,8 @@ function getParticipants(){
         });
 }
 function getAllParticipants(){
-    var sql = "SELECT * FROM participant p ORDER BY p.name";
+    var sql = "SELECT * FROM participant p "+
+              "WHERE p.pid NOT IN (SELECT pid FROM participant_event WHERE event_id='"+getId('id')+"') ORDER BY p.name ";
     var result;
     db = window.openDatabase("swgc", version, "swgc", 1000000);
     db.transaction(
@@ -120,7 +120,7 @@ function getAllParticipants(){
                 function (tx, result){
                     for (var i=0; i<result.rows.length; i++){ 
                         var row=result.rows.item(i);
-                        var stringout = "<div onClick=registerUser('0','"+row['pid']+"')>"+row['name']+"</div>"; 
+                        var stringout = "<div onClick=registerUser('"+row['pid']+"')>"+row['name']+"</div>"; 
                         document.getElementById("allParticipantsList").innerHTML = document.getElementById("allParticipantsList").innerHTML +stringout;
                     } 
                 }            
