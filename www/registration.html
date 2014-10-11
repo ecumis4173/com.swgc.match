@@ -28,6 +28,9 @@
         <link rel="stylesheet" type="text/css" href="css/index.css" />
         <script type="text/javascript" src="js/database.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
+        <script type="text/javascript">
+            getRegistration(getId('pe'));
+        </script>
         <link rel="import" href="templates.html" id="templates">
         <meta name="msapplication-tap-highlight" content="no" />
         <title>Hello World</title>
@@ -49,21 +52,19 @@
         <div id='content' class='content'>
             <div id='eventForm' class='event form'>
                 <div>Name:</div>
-                    <div><input type="text" id="name" size="25" placeholder="Full Name" value=""></div>
+                    <div id='name'></div>
                 <div>Rounds:</div>
-                    <div><select name='rounds' id='rounds'><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+                    <div><select onchange="reCalc()" name='rounds' id='rounds'><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
                 <div>Subtotal:</div>
-                    <div></div>
+                    <div id=subtotal></div>
                 <div>Paid:</div>
-                    <div></div>
-                <div>Collect:</div>
-                    <div></div>
-                <div>Change:</div>
-                    <div></div>
+                    <div id=paid></div>
+                <div>Balance:</div>
+                    <div id=balance></div>
             </div>
             <div id='addPersonButton' class='buttons'>
-                <div><input type="button" class="btn-primary" name="cancel" value="Cancel" onClick="goToPage('index.html?id=', 'id')"></div>
-                <div><input type="button" class="btn-primary" name="add" value="Add" onClick="addPerson('registration.html?id=', 'id')"></div>
+                <div><input type="button" class="btn-primary" name="delete" value="delete" onClick=""></div>
+                <div><input type="button" class="btn-primary" name="submit" value="Submit" onClick=""></div>
             </div>
         </div>
 

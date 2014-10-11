@@ -52,7 +52,41 @@ function registerUser(pid){
         )}
     , errorCB);
 }
-
+function getRegistration(pe_id){
+    var sql = "SELECT name, rounds, fee, paid "+
+              "FROM participant_event pe "+
+              "JOIN participant p ON p.pid=pe.pid "+
+              "JOIN event e ON e.event_id=pe.event_id "+
+              "WHERE pe.pe_id='"+pe_id+"'";
+    var result;
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
+    db.transaction(
+        function (tx){
+            tx.executeSql(sql, [], 
+                function (tx, result){
+                    for (var i=0; i<result.rows.length; i++){ 
+                        var row=result.rows.item(i);
+                        document.getElementById("name").innerHTML=row['name'];
+                        var rounds = 1;
+                        if(row['rounds'] > 1)
+                            rounds = row['rounds']
+                        document.getElementById("rounds").value=rounds;
+                        var subtotal = rounds*row['fee'];
+                        document.getElementById("subtotal").innerHTML=subtotal;
+                        var paid = 0;
+                        if(row['paid'] > 0)
+                            paid = row['paid']
+                        document.getElementById("paid").innerHTML=paid;
+                        var balance = paid - subtotal;
+                        document.getElementById("balance").innerHTML=balance;
+                    } 
+                }            
+            , errorCB);
+        });
+}
+function reCalc(){
+    
+}
 function getEvents(){
     var sql = "SELECT * FROM event ORDER BY date DESC";
     var result;
@@ -102,7 +136,7 @@ function getParticipants(){
                 function (tx, result){
                     for (var i=0; i<result.rows.length; i++){ 
                         var row=result.rows.item(i);
-                        var stringout = "<div onClick=goToPage('registration.html?id="+row['pe_id']+"')>" + row['name']+"</div>"; 
+                        var stringout = "<div onClick=goToPage('registration.html?id="+getId('id')+"&pe="+row['pe_id']+"')>" + row['name']+"</div>"; 
                         document.getElementById("participantList").innerHTML = document.getElementById("participantList").innerHTML +stringout;
                     } 
                 }            
