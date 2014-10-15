@@ -8,16 +8,19 @@ function addEvent(redirect) {
     var name = document.getElementById("eventName").value;
     var date = document.getElementById("date").value;
     var fee = document.getElementById("fee").value;
+    var sql = "INSERT INTO event (event_name, date, fee) VALUES ('"+name+"','"+date+"','"+fee+"')";
     if(getId('id') > 0)
-        sql = "UPDATE event event_name='"+name+"', date='"+date+"', fee='"+fee+"' WHERE event_id='"+getId('id')+"'";
-    else
-        sql = "INSERT INTO event (event_name, date, fee) VALUES ('"+name+"','"+date+"','"+fee+"')";
+        sql = "UPDATE event SET event_name='"+name+"', date='"+date+"', fee='"+fee+"' WHERE event_id='"+getId('id')+"'";
+        
     db = window.openDatabase("swgc", version, "swgc", 1000000);
     db.transaction(
         function (tx){
             tx.executeSql(sql, [], 
                 function (tx, results){
-                    goToPage('event.html?id='+results.insertId);
+                    var id = getId('id')
+                    if(getId('id') == null || getId('id') == 0)
+                        id = results.insertId;
+                    goToPage('event.html?id='+id);
                 }
             )
         }
@@ -40,8 +43,20 @@ function addPerson() {
     , errorCB);
        
 }
+function rmRegistration(){
+    sql = "DELETE FROM participant_event WHERE pe_id='"+getId('pe')+"'";
+    alert(sql);
+    db.transaction(
+        function (tx){
+            tx.executeSql(sql, [],
+                function (tx, result){
+                    goToPage('participants.html?id='+getId('id'))
+            }
+        )}
+    , errorCB);
+}
 function registerUser(pid){
-    sql = "INSERT INTO participant_event (pid, event_id) VALUES ('"+pid+"','"+getId('id')+"')";
+    sql = "INSERT INTO participant_event (pid, event_id, rounds) VALUES ('"+pid+"','"+getId('id')+"','1')";
     db.transaction(
         function (tx){
             tx.executeSql(sql, [],
@@ -77,7 +92,7 @@ function getRegistration(pe_id){
                         if(row['paid'] > 0)
                             paid = row['paid']
                         document.getElementById("paid").innerHTML=paid;
-                        var balance = paid - subtotal;
+                        var balance = subtotal - paid;
                         document.getElementById("balance").innerHTML=balance;
                     } 
                 }            
@@ -85,7 +100,20 @@ function getRegistration(pe_id){
         });
 }
 function reCalc(){
-    
+    //update rounds
+    var rounds = document.getElementById("rounds").value;
+    var paid = document.getElementById("paid").value;
+    sql = "UPDATE participant_event SET rounds='"+rounds+"', paid='"+paid+"' WHERE pe_id='"+getId('pe')+"'";
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
+    db.transaction(
+        function (tx){
+            tx.executeSql(sql, [], 
+                function (tx, result){
+                    //update page
+                    getRegistration(getId('pe'));
+                }
+            )
+        });
 }
 function getEvents(){
     var sql = "SELECT * FROM event ORDER BY date DESC";
@@ -127,7 +155,7 @@ function getEvent(id){
         });
 }
 function getParticipants(){
-    var sql = "SELECT * FROM participant_event pe JOIN participant p ON p.pid=pe.pid ORDER BY p.name";
+    var sql = "SELECT * FROM participant_event pe JOIN participant p ON p.pid=pe.pid WHERE pe.event_id='"+getId('id')+"' ORDER BY p.name";
     var result;
     db = window.openDatabase("swgc", version, "swgc", 1000000);
     db.transaction(
@@ -136,9 +164,23 @@ function getParticipants(){
                 function (tx, result){
                     for (var i=0; i<result.rows.length; i++){ 
                         var row=result.rows.item(i);
-                        var stringout = "<div onClick=goToPage('registration.html?id="+getId('id')+"&pe="+row['pe_id']+"')>" + row['name']+"</div>"; 
+                        var stringout = "<div onClick=goToPage('registration.html?id="+getId('id')+"&pe="+row['pe_id']+"')>" + row['name']+"</div>";
                         document.getElementById("participantList").innerHTML = document.getElementById("participantList").innerHTML +stringout;
                     } 
+                }            
+            , errorCB);
+        });
+}
+function delParticipant(pe_id){
+    var sql = "DELETE FROM participant_event WHERE pe_id='"+pe_id+"'";
+    var result;
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
+    db.transaction(
+        function (tx,errorCB){
+            tx.executeSql(sql, [], 
+                function (tx, result){
+                     document.getElementById("participantList").innerHTML="";
+                    getParticipants();
                 }            
             , errorCB);
         });
