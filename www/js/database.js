@@ -1,26 +1,24 @@
-var version = "1.1";
-function onDeviceReady() {
-    setDatabase();
-}
+var version = "1.9";
+
+
 function setDatabase(){
     db = window.openDatabase("swgc", version, "swgc", 1000000);
     db.transaction(createDB, errorCB, successCB);
 }
 function createDB(tx) {
-    //tx.executeSql('CREATE TABLE IF NOT EXISTS club (club_id INTEGER PRIMARY KEY, club_name VARCHAR(255), club_zip VARCHAR(5))');
-    //tx.executeSql('INSERT INTO club (club_id, club_name, club_zip) VALUES (1, "Sir Walter Gun Club", 27761)');  //TEMPORARY
-    tx.executeSql('CREATE TABLE IF NOT EXISTS event (event_id INTEGER PRIMARY KEY AUTOINCREMENT, event_name VARCHAR(255), date BIGINT, '
-                 +'fee FLOAT, round INTEGER, shots INTEGER, shots_per_stand INTEGER, shots_per_round INTEGER)');
-    tx.executeSql('CREATE TABLE IF NOT EXISTS participant (pid INTEGER PRIMARY KEY AUTOINCREMENT, pid_cloud INTEGER, name VARCHAR(255), email VARCHAR(255), skill INTEGER)');
-    tx.executeSql('CREATE TABLE IF NOT EXISTS participant_event (pe_id INTEGER PRIMARY KEY AUTOINCREMENT, pid INTEGER, event_id INTEGER, rounds INTEGER, '
-                +'fee_per_round FLOAT, paid FLOAT, rounds_complete INTEGER, order_participants INTEGER)');
-    tx.executeSql('CREATE TABLE IF NOT EXISTS shot (shot_id INTEGER PRIMARY KEY AUTOINCREMENT, pid INTEGER, event_id INTEGER, round INTEGER, shot INTEGER, hit INTEGER)');
+
+    tx.executeSql('CREATE TABLE IF NOT EXISTS event (event_id INTEGER PRIMARY KEY AUTOINCREMENT, event_name VARCHAR(55), current_round INTEGER, date BIGINT, fee FLOAT)'); 
+    //tx.executeSql('ALTER TABLE event ADD current_round INTEGER');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS participant (pid INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, email VARCHAR, skill INTEGER)');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS participant_event (pe_id INTEGER PRIMARY KEY AUTOINCREMENT, pid INTEGER, event_id INTEGER, rounds INTEGER, paid FLOAT, rounds_complete INTEGER)');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS rounds (round_id INTEGER PRIMARY KEY AUTOINCREMENT, round_num INTEGER, pe_id INTEGER, event_id INTEGER, complete INTEGER, squad INTEGER, position INTEGER)');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS shot (shot_id INTEGER PRIMARY KEY AUTOINCREMENT, pid INTEGER, event_id INTEGER, round_num INTEGER, stand INTEGER, shot INTEGER, hit INTEGER)');
 }
 function successCB(page) {
-    //alert(page);
+    //alert("Db created");
 }
 function errorCB(err, mSql) {
-    debugAlert("Error processing SQL: "+err.code+" "+err.message+" SQL:"+mSql);
+    //alert("Error processing SQL: "+err.code+" "+err.message+" SQL:"+mSql);
 }
 function queryDB(tx) {
     tx.executeSql(sql, [], querySuccess, errorCB);
@@ -39,4 +37,15 @@ function querySuccess(tx, mResults) {
 }
 function debugAlert(txt){
     alert(txt);
+}
+function killDb(){
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
+    db.transaction(function (tx){
+        tx.executeSql('DROP TABLE event');
+        tx.executeSql('DROP TABLE participant');
+        tx.executeSql('DROP TABLE participant_event');
+        tx.executeSql('DROP TABLE rounds');
+        tx.executeSql('DROP TABLE shot');
+    }
+    , errorCB, successCB);
 }

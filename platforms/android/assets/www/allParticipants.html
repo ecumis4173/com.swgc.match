@@ -1,4 +1,22 @@
 <!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations 
+    under the License.
+-->
 <html>
     <head>
      <meta charset="utf-8" />
@@ -11,15 +29,12 @@
         <script type="text/javascript" src="js/database.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" >
-            function onDeviceReady() {
-                setDatabase();
-                getEvents();  
-            }
+            getAllParticipants();  
         </script>
         <link rel="import" href="templates.html" id="templates">
         <title>Hello World</title>
     </head>
-    <body onload='onDeviceReady();'>
+    <body onload="onDeviceReady()">
         <div id="container">
         
         <!-- Header Template-->
@@ -29,27 +44,29 @@
             var clone = document.importNode(template.content, true);
             document.querySelector('#container').appendChild(clone);
         </script>
-        <!--  -->
+        <!-- -------------------- -->
+        
                 
         <!-- PUT PAGE CONTENT HERE -->
         <div id='content' class='content'>
-            <div id='eventList' class='list'></div>
-            <div id='addEventButton' class='button'>
-                <input type="button" name="addEventButton" value="Add Event" onClick="goToPage('addEvent.html')">
-                <input type="button" name="addEventButton" value="Kill DB" onClick="killDb()">
+            <div id='allParticipantsList' class='list'></div>
+            <div id='addParticipantButton' class='button'>
+                <input type="button" class='btn-primary' name="addParticipantButton" value="Create New Participant" onClick="goToPage('addPerson.html?id=', 'id')">
             </div>
-            <div id='eventList'></div>
         </div>
-      
+        </div>
+
+        
+        <!-- Footer Template-->
         <script>
             var link = document.querySelector('link[rel="import"]');
             var template = link.import.querySelector('template[id="footer"');
             var clone = document.importNode(template.content, true);
             document.querySelector('#container').appendChild(clone);
         </script>
-       
+        <!-- -------------------- -->
         
-        </div>
+        
         <!-- DO NOT EDIT BELOW HERE-->
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>

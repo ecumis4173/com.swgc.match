@@ -4,15 +4,50 @@ function goToPage(page, param) {
     else
         window.location.href=page;
 }
+function getCurrentRound(){
+    var sql = "SELECT current_round FROM event WHERE event_id="+getId('id')+" LIMIT 1";
+    var result;
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
+    db.transaction(
+        function (tx,errorCB){
+            tx.executeSql(sql, [], 
+                function (tx, result){
+                    var round_num = 1;
+                    for (var i=0; i<result.rows.length; i++){ 
+                        var row=result.rows.item(i);
+                        round_num = row['current_round']                        
+                    } 
+                    document.getElementById("round").innerHTML = "Round "+round_num+" of ";
+                    var sql = "SELECT max(rounds) as total_rounds FROM participant_event WHERE event_id="+getId('id');
+                    var result;
+                    db = window.openDatabase("swgc", version, "swgc", 1000000);
+                    db.transaction(
+                    function (tx,errorCB){
+                        tx.executeSql(sql, [], 
+                            function (tx, result){
+                            var round_num = 1;
+                            for (var i=0; i<result.rows.length; i++){ 
+                                var row=result.rows.item(i);
+                                round_num = row['total_rounds']                        
+                            } 
+                            document.getElementById("round").innerHTML = document.getElementById("round").innerHTML + round_num;
+                        }            
+                        , errorCB);
+                    });
+                }            
+            , errorCB);
+        });
+}
 function addEvent(redirect) {
     var name = document.getElementById("eventName").value;
     var date = document.getElementById("date").value;
     var fee = document.getElementById("fee").value;
-    var sql = "INSERT INTO event (event_name, date, fee) VALUES ('"+name+"','"+date+"','"+fee+"')";
+    var sql = "INSERT INTO event (event_name, date, fee, current_round) VALUES ('"+name+"','"+date+"','"+fee+"','1')";
     if(getId('id') > 0)
-        sql = "UPDATE event SET event_name='"+name+"', date='"+date+"', fee='"+fee+"' WHERE event_id='"+getId('id')+"'";
-        
+        sql = "UPDATE event SET event_name='"+name+"', date='"+date+"', fee='"+fee+"' WHERE event_id='"+getId('id')+"'";  
+    alert(sql);
     db = window.openDatabase("swgc", version, "swgc", 1000000);
+    //alert(sql);
     db.transaction(
         function (tx){
             tx.executeSql(sql, [], 
@@ -126,7 +161,7 @@ function getEvents(){
                     for (var i=0; i<result.rows.length; i++){ 
                         var row=result.rows.item(i);
                         //alert(" " + row['event_id']+" " + row['event_name']+" " + row['date']+" ");
-                        var stringout = "<div onClick=goToPage('event.html?id="+row['event_id']+"')>" + row['event_id']+" " + row['event_name']+" " + row['date'] + "</div>"; 
+                        var stringout = "<div id=e"+i+" onClick=goToPage('event.html?id="+row['event_id']+"')>"+row['event_id']+" " + row['event_name']+" " + row['date'] + "</a></div>"; 
                         document.getElementById("eventList").innerHTML = document.getElementById("eventList").innerHTML +stringout;
                     } 
                 }            
