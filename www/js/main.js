@@ -4,40 +4,6 @@ function goToPage(page, param) {
     else
         window.location.href=page;
 }
-function getCurrentRound(){
-    var sql = "SELECT current_round FROM event WHERE event_id="+getId('id')+" LIMIT 1";
-    var result;
-    db = window.openDatabase("swgc", version, "swgc", 1000000);
-    db.transaction(
-        function (tx,errorCB){
-            tx.executeSql(sql, [], 
-                function (tx, result){
-                    var round_num = 1;
-                    for (var i=0; i<result.rows.length; i++){ 
-                        var row=result.rows.item(i);
-                        round_num = row['current_round']                        
-                    } 
-                    document.getElementById("round").innerHTML = "Round "+round_num+" of ";
-                    var sql = "SELECT max(rounds) as total_rounds FROM participant_event WHERE event_id="+getId('id');
-                    var result;
-                    db = window.openDatabase("swgc", version, "swgc", 1000000);
-                    db.transaction(
-                    function (tx,errorCB){
-                        tx.executeSql(sql, [], 
-                            function (tx, result){
-                            var round_num = 1;
-                            for (var i=0; i<result.rows.length; i++){ 
-                                var row=result.rows.item(i);
-                                round_num = row['total_rounds']                        
-                            } 
-                            document.getElementById("round").innerHTML = document.getElementById("round").innerHTML + round_num;
-                        }            
-                        , errorCB);
-                    });
-                }            
-            , errorCB);
-        });
-}
 function addEvent(redirect) {
     var name = document.getElementById("eventName").value;
     var date = document.getElementById("date").value;
@@ -45,7 +11,7 @@ function addEvent(redirect) {
     var sql = "INSERT INTO event (event_name, date, fee, current_round) VALUES ('"+name+"','"+date+"','"+fee+"','1')";
     if(getId('id') > 0)
         sql = "UPDATE event SET event_name='"+name+"', date='"+date+"', fee='"+fee+"' WHERE event_id='"+getId('id')+"'";  
-    alert(sql);
+    //alert(sql);
     db = window.openDatabase("swgc", version, "swgc", 1000000);
     //alert(sql);
     db.transaction(
@@ -61,18 +27,28 @@ function addEvent(redirect) {
         }
     ,errorCB);
 }
-function addPerson() {
+function addPerson(page) {
     var name = document.getElementById("name").value;
-    var date = document.getElementById("email").value;
-    var fee = document.getElementById("skill").value;
-    sql = "INSERT INTO participant (name, email, skill) VALUES ('"+name+"','"+email+"','"+skill+"')";
+    var email = document.getElementById("email").value;
+	var pid = document.getElementById("pid").value;
+	var e = document.getElementById("skill");
+	var skill = e.options[e.selectedIndex].value;
+	sql = "INSERT INTO participant (name, email, skill) VALUES ('"+name+"','"+email+"','"+skill+"')";
+	if(getId('pe') > 0)
+		sql = "UPDATE participant SET name='"+name+"', email='"+email+"', skill='"+skill+"' WHERE pid="+pid;
+	
+	
     db = window.openDatabase("swgc", version, "swgc", 1000000);
     db.transaction(
         function (tx){
             tx.executeSql(sql, [],
                 function (tx, results){
-                    var pid = results.insertId;
-                    registerUser(pid);
+					if(getId('pe') > 0)
+						goToPage('participants.html?id=', 'id');
+					else {
+						var pid = results.insertId;
+						registerUser(pid);
+					}
                 }
         )}
     , errorCB);
@@ -80,7 +56,7 @@ function addPerson() {
 }
 function rmRegistration(){
     sql = "DELETE FROM participant_event WHERE pe_id='"+getId('pe')+"'";
-    alert(sql);
+    //alert(sql);
     db.transaction(
         function (tx){
             tx.executeSql(sql, [],
@@ -103,7 +79,7 @@ function registerUser(pid){
     , errorCB);
 }
 function getRegistration(pe_id){
-    var sql = "SELECT name, rounds, fee, paid "+
+    sql = "SELECT name, rounds, fee, paid, skill, p.pid, email "+
               "FROM participant_event pe "+
               "JOIN participant p ON p.pid=pe.pid "+
               "JOIN event e ON e.event_id=pe.event_id "+
@@ -116,25 +92,29 @@ function getRegistration(pe_id){
                 function (tx, result){
                     for (var i=0; i<result.rows.length; i++){ 
                         var row=result.rows.item(i);
-                        document.getElementById("name").innerHTML=row['name'];
+                        document.getElementById("name").value=row['name'];
+						document.getElementById("email").value=row['email'];
                         var rounds = 1;
                         if(row['rounds'] > 1)
-                            rounds = row['rounds']
+                            rounds = row['rounds'];
                         document.getElementById("rounds").value=rounds;
                         var subtotal = rounds*row['fee'];
                         document.getElementById("subtotal").innerHTML=subtotal;
                         var paid = 0;
                         if(row['paid'] > 0)
-                            paid = row['paid']
+                            paid = row['paid'];
                         document.getElementById("paid").innerHTML=paid;
                         var balance = subtotal - paid;
                         document.getElementById("balance").innerHTML=balance;
+						document.getElementById("skill").value=row['skill'];
+						//var skill = e.options[e.selectedIndex].value=row['skill'];
+						document.getElementById("pid").value=row['pid'];
                     } 
                 }            
             , errorCB);
         });
 }
-function reCalc(){
+function reCalc(page){
     //update rounds
     var rounds = document.getElementById("rounds").value;
     var paid = document.getElementById("paid").value;
@@ -145,7 +125,7 @@ function reCalc(){
             tx.executeSql(sql, [], 
                 function (tx, result){
                     //update page
-                    getRegistration(getId('pe'));
+					addPerson(page);
                 }
             )
         });

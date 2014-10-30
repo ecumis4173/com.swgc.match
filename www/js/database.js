@@ -15,10 +15,10 @@ function createDB(tx) {
     tx.executeSql('CREATE TABLE IF NOT EXISTS shot (shot_id INTEGER PRIMARY KEY AUTOINCREMENT, pid INTEGER, event_id INTEGER, round_num INTEGER, stand INTEGER, shot INTEGER, hit INTEGER)');
 }
 function successCB(page) {
-    //alert("Db created");
+    alert("Db created");
 }
 function errorCB(err, mSql) {
-    //alert("Error processing SQL: "+err.code+" "+err.message+" SQL:"+mSql);
+    alert("Error processing SQL: "+err.code+" "+err.message+" SQL:"+mSql);
 }
 function queryDB(tx) {
     tx.executeSql(sql, [], querySuccess, errorCB);

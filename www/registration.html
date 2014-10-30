@@ -29,7 +29,9 @@
         <script type="text/javascript" src="js/database.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript">
-            getRegistration(getId('pe'));
+			function onDeviceReady(){
+				getRegistration(getId('pe'));
+			}
         </script>
         <link rel="import" href="templates.html" id="templates">
         <meta name="msapplication-tap-highlight" content="no" />
@@ -53,7 +55,17 @@
             <div id='eventForm' class='event form'>
                 
                 <div>Name:</div>
-                    <div id='name'></div>
+                    <div><input type="text" id="name" size="25" value="" placeholder='Full Name'></<div>
+                <div>Email:</div>
+					<div><input type="text" id="email" size="25" value="" placeholder='Email Address'></div>
+                <div>Skill Level:</div>
+					<div>
+						<select id="skill">
+							<option value="1">Master</option>
+							<option value="2">Intermediate</option>
+							<option value="3">Novice</option>
+						</select>
+					</div>	
                 <div>Rounds:</div>
                     <div><select onchange="reCalc()" name='rounds' id='rounds'><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
                 <div>Subtotal:</div>
@@ -62,11 +74,12 @@
                     <div><input onchange="reCalc()" type=text name=paid id=paid value=''></div>
                 <div>Balance:</div>
                     <div id=balance></div>
+				<input type=hidden name=pid id=pid>
                 <div>//TODO - option to edit name, email, and skill level</div>
             </div>
             <div id='addPersonButton' class='buttons'>
                 <div><input type="button" class="btn-primary" name="delete" value="Delete" onClick="rmRegistration()"></div>
-                <div><input type="button" class="btn-primary" name="submit" value="Done" onClick="goToPage('participants.html?id=','id')"></div>
+                <div><input type="button" class="btn-primary" name="submit" value="Done" onClick="reCalc('participants.html?id=')"></div>
             </div>
         </div>
 

@@ -11,7 +11,248 @@
         <script type="text/javascript" src="js/database.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" >
-            getCurrentRound();
+			function onDeviceReady() {
+				var current_round = 1;
+				var current_squad = 1;
+				var max_round = 1;
+				getCurrentRound();
+			}
+			function getCurrentRound(){
+				var sql = "SELECT current_round FROM event WHERE event_id="+getId('id')+" LIMIT 1";
+				var result;
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+					function (tx,errorCB){
+						tx.executeSql(sql, [], 
+							function (tx, result){
+								for (var i=0; i<result.rows.length; i++){ 
+									var row=result.rows.item(i);
+									current_round = row['current_round']; 
+								}
+								//document.getElementById('round_num').value=current_round;
+								//if(current_round == 1)
+								//	document.getElementById("previous").style.display="none";
+								getMaxRound();
+							}            
+						, errorCB);
+					});
+			}
+			function getMaxRound(){
+				var sql = "SELECT max(rounds) as total_rounds FROM participant_event WHERE event_id="+getId('id');
+				var result;
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					tx.executeSql(sql, [], 
+						function (tx, result){
+							for (var i=0; i<result.rows.length; i++){ 
+								var row=result.rows.item(i);
+								max_round = row['total_rounds'];
+								getCurrentSquad();
+							} 
+							document.getElementById("round").innerHTML = "Round "+current_round+" of "+max_round;
+					}            
+				, errorCB);
+				});
+			}
+			function getCurrentSquad(){
+				var sql = "SELECT min(squad) as current_squad FROM rounds WHERE event_id="+getId('id')+" AND (complete=0 OR complete IS NULL)";
+				var result;
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					tx.executeSql(sql, [], 
+						function (tx, result){
+							for (var i=0; i<result.rows.length; i++){ 
+								var row=result.rows.item(i);
+								current_squad = row['current_squad'];
+								getRoundParticipants();
+							} 
+							document.getElementById("currentSquad").innerHTML = "Current Squad "+current_squad;
+					}            
+				, errorCB);
+				});
+			}
+			function getRoundParticipants(){
+				var sql = "SELECT p.name, p.skill, pe.pe_id, r.round_id, r.squad, r.position "+
+						  "FROM participant p "+
+						  "JOIN participant_event pe ON pe.pid=p.pid "+
+						  "JOIN event e ON e.event_id=pe.event_id "+
+						  "JOIN rounds r ON e.event_id = r.event_id AND r.pe_id=pe.pe_id "+
+						  "WHERE e.event_id="+getId('id')+" AND r.round_num="+current_round+" "+
+						  "ORDER BY r.squad, r.position";
+				var result;
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					tx.executeSql(sql, [], 
+						function (tx, result){
+							if(result.rows.length == 0){
+								getDefaultRoundParticipants();
+							}else{	
+								displaySquads(result);
+							}
+						}            
+				, errorCB);
+				}, errorCB);				
+			}		
+			function getDefaultRoundParticipants(){
+				if(current_round == 1) {
+					var sql = "SELECT p.name, p.skill, pe.pe_id "+
+						  "FROM participant p "+
+						  "JOIN participant_event pe ON pe.pid=p.pid "+
+						  "JOIN event e ON e.event_id=pe.event_id "+
+						  "WHERE e.event_id="+getId('id')+" "+
+						  "ORDER BY p.skill";
+				} else{
+					var sql = "SELECT * FROM calculate_by_standing";
+				}
+				var result;
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					tx.executeSql(sql, [], 
+						function (tx, result){
+							setupSquad(result);
+						}            
+				, errorCB);
+				}, errorCB);
+			}
+			function setupSquad(result){
+				var bump =0;
+				var t = 1;
+				var squad_num = 0;
+				people = result.rows.length;
+				remainder = people % 5;
+				squads = parseInt(people / 5);
+				if(remainder > 0)
+					squads++;
+				if(remainder == 2 && people > 5) {
+					bump = 1;  //4&3
+				}
+				else if(remainder == 1 && people > 5) {
+					bump = 2;  //3&3
+				}
+				else if(remainder == 3 && people > 5) {
+					bump = 1;  //4&4
+				}
+				for (var i=1; i<=result.rows.length; i++){ 
+					if(i == t){
+						t = t + 5;
+						squads--;
+						if(squads == 1)
+							t = t-bump;
+						squad_num++;
+					}
+					var row=result.rows.item(i-1);
+					round_arr[i-1] = "INSERT INTO rounds (pe_id, round_num, event_id, squad, position) VALUES ("+row['pe_id']+", "+current_round+", "+getId('id')+", "+squad_num+", "+i+")";
+					
+				}
+				insertRoundParticipant();
+			}
+			var round_arr = new Array();
+			function insertRoundParticipant(){
+				var result;
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					for(var i=0; i<round_arr.length; i++){
+						//alert(round_arr[i]);
+						tx.executeSql(round_arr[i]);
+					}
+				}, errorCB, getRoundParticipants);
+			}
+			function displaySquads(result){
+				var t = 0;
+				for (var i=0; i<result.rows.length; i++){ 
+					var row=result.rows.item(i);
+					if(t!=row['squad']){
+						t = row['squad'];
+						if(t==1)
+							var stringout = "<div id='squad"+row['squad']+"'><strong>Squad "+row['squad']+"</strong></div>";
+						else
+							var stringout = "<div id='squad"+row['squad']+"' position="+i+"><strong>Squad "+row['squad']+"</strong><span onclick='shiftSquadUp("+row['squad']+")'>+</span><span onclick='shiftSquadDown("+row['squad']+")'>-</span></div>";
+						document.getElementById("squad").innerHTML = document.getElementById("squad").innerHTML +stringout;
+					}
+					var stringout = "<div id='position"+i+"' round_id="+row['round_id']+" squad='"+row['squad']+"' pe_id='"+row['pe_id']+"' position='"+row['position']+"'>"+row['name']+row['skill']+" <span onclick='shiftUp("+i+")'>+</span> <span onclick='shiftDown("+i+")'>-</span> </div>"; 
+					document.getElementById("squad").innerHTML = document.getElementById("squad").innerHTML +stringout;
+				}
+			}
+			function shiftUp(id){
+				shift(id, -1);
+			}
+			function shift(id, dir){
+				//alert(id);
+				var mover = document.getElementById('position'+id);
+				var moverRoundId = mover.getAttribute('round_id');
+				var moverSquad = mover.getAttribute('squad');
+				var moverPosition = mover.getAttribute('position');
+				
+				var idB = id+dir;
+				var bumped = document.getElementById('position'+idB);
+				var bumpedRoundId = bumped.getAttribute('round_id');
+				var bumpedSquad = bumped.getAttribute('squad');
+				var bumpedPosition = bumped.getAttribute('position');
+				
+				var sqlA = "UPDATE rounds SET squad="+bumpedSquad+", position="+bumpedPosition+" WHERE round_id="+moverRoundId;
+				//alert(sqlA);
+				var sqlB = "UPDATE rounds SET squad="+moverSquad+", position="+moverPosition+" WHERE round_id="+bumpedRoundId;
+				//alert(sqlB);
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+						tx.executeSql(sqlA);
+						tx.executeSql(sqlB);
+				}, errorCB, clearList);
+			}
+			function clearList(){
+				document.getElementById("squad").innerHTML = "";
+				getRoundParticipants();
+			}
+			function shiftDown(id){
+				shift(id, 1);
+			}
+			function shiftSquadUp(id){
+				var squad = document.getElementById('squad'+id);
+				var below = squad.getAttribute('position');
+				//alert(below);
+				var above = parseInt(below)-1;
+				//alert(above);
+				var shift = document.getElementById('position'+above);
+				var round_id = shift.getAttribute('round_id');
+				var sql = "UPDATE rounds SET squad="+id+" WHERE round_id="+round_id;
+				//alert(sql);
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+						tx.executeSql(sql);
+				}, errorCB, clearList);
+			}
+			function shiftSquadDown(id){
+				var squad = document.getElementById('squad'+id);
+				var newSquad = id-1;
+				var below = squad.getAttribute('position');
+				var shift = document.getElementById('position'+below);
+				var round_id = shift.getAttribute('round_id');
+				var sql = "UPDATE rounds SET squad="+newSquad+" WHERE round_id="+round_id;
+				//alert(sql);
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+						tx.executeSql(sql);
+				}, errorCB, clearList);
+			}
+			function resetRound(){
+				var sql = " DELETE FROM rounds WHERE event_id="+getId('id')+" AND round_num="+current_round
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+						tx.executeSql(sql);
+				}, errorCB, clearList);
+			}
+			function startRound(){
+				goToPage('match.html?id='+getId('id')+'&r='+current_round+'&s=1')
+			}
         </script>
         <link rel="import" href="templates.html" id="templates">
         <title>Hello World</title>
@@ -33,12 +274,10 @@
         <!-- PUT PAGE CONTENT HERE -->
         <div id='content' class='content'>
             <div id='round'></div>
-            <!--
-            //Are round squads set?
-            //If no order by skill
-            //If so order by saved override
-            //allow user to drap drop order
-            -->
+			<div id='currentSquad'></div>
+			<div id='squad'></div>
+			<div id='reset'><input type=button value='Reset' onclick=resetRound()></div>
+			<div id='start'><input type=button value='Start' onclick=startRound()></div>
         </div>
 
             
