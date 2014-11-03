@@ -117,3 +117,12 @@ h1 {
     animation:fade 3000ms infinite;
     -webkit-animation:fade 3000ms infinite;
 }
+.clayCol{
+	width:20%;
+	text-align:center;
+	padding:40, 0px, 40px, 0px;
+	float:left;
+}
+.clayRow{
+	clear:both;
+}

@@ -11,9 +11,125 @@
         <script type="text/javascript" src="js/database.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" >
+			var event_id;
+			var round_num;
+			var squad;
+			var stand=1;
+			var round_ids = new Array();
             function onDeviceReady(){
+				event_id = getId('id');
+				round_num = getId('r');
+				squad = getId('s');
+				stand = getId('st');
 				getShooters();
-			}			
+			}
+			function getShooters(){
+				var sql = 	"SELECT p.name, r.round_id, r.position "+
+							"FROM participant p "+
+							"JOIN participant_event pe ON pe.pid=p.pid "+
+							"JOIN rounds r ON r.pe_id=pe.pe_id AND r.round_num="+round_num+" AND r.squad="+squad+" "+
+							"WHERE r.event_id="+event_id+" "+
+							"ORDER BY r.position";
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					tx.executeSql(sql, [], 
+						function (tx, result){
+							for (var i=0; i<result.rows.length; i++){ 
+								var row=result.rows.item(i);
+								position = parseInt(row['position']);
+								round_id = row['round_id'];
+								round_ids[i] = round_id;
+								standAdjust = parseInt(stand)-1;
+								position = position+standAdjust;
+								if(position>5)
+									position = position-5;
+								element = 'stand'+position;
+								//alert(element);
+								document.getElementById(element).innerHTML=row['name'];
+							} 
+							
+					}            
+				, errorCB);
+				}, errorCB, getShots);
+			}
+			function getShots(){
+				//TODO -- update sql to increment stand # for each user.
+				var sql = 	"SELECT * \n"+
+							"FROM shot s \n"+
+							"JOIN rounds r ON r.round_id=s.round_id \n"+
+							"WHERE r.round_num="+round_num+" AND r.event_id="+event_id+" \n"+
+							"AND r.squad="+squad+" "+
+							"ORDER BY s.stand, s.shot";
+				//alert(sql);
+				//var sql = "DELETE FROM shot";
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					tx.executeSql(sql, [], 
+						function (tx, result){
+							if(result.rows.length==0) {	
+								alert("setDefaultShotsToMiss");
+								setDefaultShotsToMiss();
+							}
+							for (var i=0; i<result.rows.length; i++){ 
+								alert('Loop here');
+								var row=result.rows.item(i);
+								var clay = 'Miss';
+								if(row['hit']==1)
+									clay = 'Hit';
+								col = document.getElementById('s'+row['stand']+'c'+row['shot'])
+								col.innerHTML=clay;
+								col.setAttribute('shot_id', row['shot_id']);
+							} 
+					}            
+				, errorCB);
+				}, errorCB);
+			}
+			function setDefaultShotsToMiss(){
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					for(i=0; i<round_ids.length; i++){
+						var myStand = parseInt(stand)+i;
+						if(myStand > 5)
+							myStand = myStand-5;
+						for(t=1; t<=5; t++) {
+							sql = "INSERT INTO shot (round_id, stand, shot, hit) VALUES ("+round_ids[i]+", "+myStand+", "+t+", 0)";
+							alert(sql);
+							tx.executeSql(sql);
+						}
+					}
+				}, errorCB, getShots);  //TODO = change to getShots
+			}
+			function toggleHit(stand, shot){
+				col=document.getElementById('s'+stand+'c'+shot);
+				clay = col.innerHTML;
+				shot_id = col.getAttribute('shot_id');
+				hit=1;
+				if(clay=='Hit')
+					hit=0;
+				var sql = "UPDATE shot SET hit="+hit+" WHERE shot_id="+shot_id;
+				alert(sql);
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+							tx.executeSql(sql);
+				}, errorCB, 
+					function(){
+						var clay = 'Miss';
+						if(hit==1)
+							clay = 'Hit';
+						col.innerHTML=clay;
+					}
+				);
+			}
+			function rotate(){
+				stand++;
+				if(stand>5)
+					alert('complete round');
+				window.location.href="match.html?id="+event_id+"&r="+round_num+"&s="+squad+"&st="+stand;
+			}
         </script>
         <link rel="import" href="templates.html" id="templates">
         <title>Hello World</title>
@@ -34,6 +150,51 @@
             
         <!-- PUT PAGE CONTENT HERE -->
         <div id='content' class='content'>
+			<div class=clayRow id=stands>
+				<div class=clayCol id=stand1 >&nbsp;</div>
+				<div class=clayCol id=stand2 >&nbsp;</div>
+				<div class=clayCol id=stand3 >&nbsp;</div>
+				<div class=clayCol id=stand4 >&nbsp;</div>
+				<div class=clayCol id=stand5 >&nbsp;</div>
+			</div>
+			<div class=clayRow id=clays>
+				<div class=clayCol id=s1c1 shot_id='' onClick='toggleHit(1,1)'>Miss</div>
+				<div class=clayCol id=s2c1 shot_id='' onClick='toggleHit(2,1)'>Miss</div>
+				<div class=clayCol id=s3c1 shot_id='' onClick='toggleHit(3,1)'>Miss</div>
+				<div class=clayCol id=s4c1 shot_id='' onClick='toggleHit(4,1)'>Miss</div>
+				<div class=clayCol id=s5c1 shot_id='' onClick='toggleHit(5,1)'>Miss</div>
+			</div>
+			<div class=clayRow id=clays>
+				<div class=clayCol id=s1c2 shot_id='' onClick='toggleHit(1,2)'>Miss</div>
+				<div class=clayCol id=s2c2 shot_id='' onClick='toggleHit(2,2)'>Miss</div>
+				<div class=clayCol id=s3c2 shot_id='' onClick='toggleHit(3,2)'>Miss</div>
+				<div class=clayCol id=s4c2 shot_id='' onClick='toggleHit(4,2)'>Miss</div>
+				<div class=clayCol id=s5c2 shot_id='' onClick='toggleHit(5,2)'>Miss</div>
+			</div>
+			<div class=clayRow id=clays>
+				<div class=clayCol id=s1c3 shot_id='' onClick='toggleHit(1,3)'>Miss</div>
+				<div class=clayCol id=s2c3 shot_id='' onClick='toggleHit(2,3)'>Miss</div>
+				<div class=clayCol id=s3c3 shot_id='' onClick='toggleHit(3,3)'>Miss</div>
+				<div class=clayCol id=s4c3 shot_id='' onClick='toggleHit(4,3)'>Miss</div>
+				<div class=clayCol id=s5c3 shot_id='' onClick='toggleHit(5,3)'>Miss</div>
+			</div>
+			<div class=clayRow id=clays>
+				<div class=clayCol id=s1c4 shot_id='' onClick='toggleHit(1,4)'>Miss</div>
+				<div class=clayCol id=s2c4 shot_id='' onClick='toggleHit(2,4)'>Miss</div>
+				<div class=clayCol id=s3c4 shot_id='' onClick='toggleHit(3,4)'>Miss</div>
+				<div class=clayCol id=s4c4 shot_id='' onClick='toggleHit(4,4)'>Miss</div>
+				<div class=clayCol id=s5c4 shot_id='' onClick='toggleHit(5,4)'>Miss</div>
+			</div>
+			<div class=clayRow id=clays>
+				<div class=clayCol id=s1c5 shot_id='' onClick='toggleHit(1,5)'>Miss</div>
+				<div class=clayCol id=s2c5 shot_id='' onClick='toggleHit(2,5)'>Miss</div>
+				<div class=clayCol id=s3c5 shot_id='' onClick='toggleHit(3,5)'>Miss</div>
+				<div class=clayCol id=s4c5 shot_id='' onClick='toggleHit(4,5)'>Miss</div>
+				<div class=clayCol id=s5c5 shot_id='' onClick='toggleHit(5,5)'>Miss</div>
+			</div>
+			<div>
+				<input type=button value='Rotate' onClick='rotate()'>
+			</div>
 
         </div>
 

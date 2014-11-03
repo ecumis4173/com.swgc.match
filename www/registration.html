@@ -29,8 +29,13 @@
         <script type="text/javascript" src="js/database.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript">
+			var redirect = false;
 			function onDeviceReady(){
 				getRegistration(getId('pe'));
+			}
+			function reCalcClose(){
+				redirect = true;
+				reCalc();
 			}
         </script>
         <link rel="import" href="templates.html" id="templates">
@@ -79,7 +84,7 @@
             </div>
             <div id='addPersonButton' class='buttons'>
                 <div><input type="button" class="btn-primary" name="delete" value="Delete" onClick="rmRegistration()"></div>
-                <div><input type="button" class="btn-primary" name="submit" value="Done" onClick="reCalc('participants.html?id=')"></div>
+                <div><input type="button" class="btn-primary" name="submit" value="Done" onClick="reCalcClose()"></div>
             </div>
         </div>
 

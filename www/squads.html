@@ -11,10 +11,11 @@
         <script type="text/javascript" src="js/database.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" >
+			var current_round = 1;
+			var current_squad = 1;
+			var max_round = 1;
+			var round_arr = new Array();
 			function onDeviceReady() {
-				var current_round = 1;
-				var current_squad = 1;
-				var max_round = 1;
 				getCurrentRound();
 			}
 			function getCurrentRound(){
@@ -150,7 +151,6 @@
 				}
 				insertRoundParticipant();
 			}
-			var round_arr = new Array();
 			function insertRoundParticipant(){
 				var result;
 				db = window.openDatabase("swgc", version, "swgc", 1000000);
@@ -251,7 +251,7 @@
 				}, errorCB, clearList);
 			}
 			function startRound(){
-				goToPage('match.html?id='+getId('id')+'&r='+current_round+'&s=1')
+				goToPage('match.html?id='+getId('id')+'&r='+current_round+'&s=1&st=1')
 			}
         </script>
         <link rel="import" href="templates.html" id="templates">

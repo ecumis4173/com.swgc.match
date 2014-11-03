@@ -30,7 +30,9 @@ function addEvent(redirect) {
 function addPerson(page) {
     var name = document.getElementById("name").value;
     var email = document.getElementById("email").value;
-	var pid = document.getElementById("pid").value;
+	try{
+		var pid = document.getElementById("pid").value;
+	} catch (e){}
 	var e = document.getElementById("skill");
 	var skill = e.options[e.selectedIndex].value;
 	sql = "INSERT INTO participant (name, email, skill) VALUES ('"+name+"','"+email+"','"+skill+"')";
@@ -43,11 +45,15 @@ function addPerson(page) {
         function (tx){
             tx.executeSql(sql, [],
                 function (tx, results){
-					if(getId('pe') > 0)
+					if(redirect == true)
 						goToPage('participants.html?id=', 'id');
 					else {
-						var pid = results.insertId;
-						registerUser(pid);
+						try{
+							var pid = results.insertId;
+							registerUser(pid);
+						} catch(e){
+							getRegistration(getId('pe'))
+						}
 					}
                 }
         )}
