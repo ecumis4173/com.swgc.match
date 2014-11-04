@@ -69,11 +69,11 @@
 					tx.executeSql(sql, [], 
 						function (tx, result){
 							if(result.rows.length==0) {	
-								alert("setDefaultShotsToMiss");
+								//alert("setDefaultShotsToMiss");
 								setDefaultShotsToMiss();
 							}
 							for (var i=0; i<result.rows.length; i++){ 
-								alert('Loop here');
+								//alert('Loop here');
 								var row=result.rows.item(i);
 								var clay = 'Miss';
 								if(row['hit']==1)
@@ -96,7 +96,7 @@
 							myStand = myStand-5;
 						for(t=1; t<=5; t++) {
 							sql = "INSERT INTO shot (round_id, stand, shot, hit) VALUES ("+round_ids[i]+", "+myStand+", "+t+", 0)";
-							alert(sql);
+							//alert(sql);
 							tx.executeSql(sql);
 						}
 					}
@@ -110,7 +110,7 @@
 				if(clay=='Hit')
 					hit=0;
 				var sql = "UPDATE shot SET hit="+hit+" WHERE shot_id="+shot_id;
-				alert(sql);
+				//alert(sql);
 				db = window.openDatabase("swgc", version, "swgc", 1000000);
 				db.transaction(
 				function (tx,errorCB){
