@@ -41,10 +41,10 @@ function debugAlert(txt){
 function killDb(){
     db = window.openDatabase("swgc", version, "swgc", 1000000);
     db.transaction(function (tx){
-        //tx.executeSql('DROP TABLE event');
-        //tx.executeSql('DROP TABLE participant');
-        //tx.executeSql('DROP TABLE participant_event');
-        //tx.executeSql('DROP TABLE rounds');
+        tx.executeSql('DROP TABLE event');
+        tx.executeSql('DROP TABLE participant');
+        tx.executeSql('DROP TABLE participant_event');
+        tx.executeSql('DROP TABLE rounds');
         tx.executeSql('DROP TABLE shot');
     }
     , errorCB, successCB);
