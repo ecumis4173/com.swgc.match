@@ -11,7 +11,7 @@
         <script type="text/javascript" src="js/database.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" >
-			var current_round = 1;
+			var current_round = getId('r');;
 			var current_squad = 1;
 			var max_round = 1;
 			var round_arr = new Array();
@@ -19,24 +19,24 @@
 				getCurrentRound();
 			}
 			function getCurrentRound(){
-				var sql = "SELECT current_round FROM event WHERE event_id="+getId('id')+" LIMIT 1";
-				var result;
-				db = window.openDatabase("swgc", version, "swgc", 1000000);
-				db.transaction(
-					function (tx,errorCB){
-						tx.executeSql(sql, [], 
-							function (tx, result){
-								for (var i=0; i<result.rows.length; i++){ 
-									var row=result.rows.item(i);
-									current_round = row['current_round']; 
-								}
+				//var sql = "SELECT current_round FROM event WHERE event_id="+getId('id')+" LIMIT 1";
+				//var result;
+				//db = window.openDatabase("swgc", version, "swgc", 1000000);
+				//db.transaction(
+					//function (tx,errorCB){
+						//tx.executeSql(sql, [], 
+							//function (tx, result){
+								//for (var i=0; i<result.rows.length; i++){ 
+								//	var row=result.rows.item(i);
+									//current_round = row['current_round']; 
+								//}
 								//document.getElementById('round_num').value=current_round;
-								//if(current_round == 1)
-								//	document.getElementById("previous").style.display="none";
+								if(current_round == 1)
+									document.getElementById("previous").style.display="none";
 								getMaxRound();
-							}            
-						, errorCB);
-					});
+				//				}           
+				//		, errorCB);
+				//	}, errorCB, getMaxRound);
 			}
 			function getMaxRound(){
 				var sql = "SELECT max(rounds) as total_rounds FROM participant_event WHERE event_id="+getId('id');
@@ -52,6 +52,8 @@
 								getCurrentSquad();
 							} 
 							document.getElementById("round").innerHTML = "Round "+current_round+" of "+max_round;
+							if(current_round == max_round)
+									document.getElementById("next").style.display="none";
 					}            
 				, errorCB);
 				});
@@ -69,20 +71,31 @@
 								current_squad = row['current_squad'];
 								getRoundParticipants();
 							} 
-							document.getElementById("currentSquad").innerHTML = "Current Squad "+current_squad;
+							//document.getElementById("currentSquad").innerHTML = "Current Squad "+current_squad;
 					}            
 				, errorCB);
 				});
 			}
 			function getRoundParticipants(){
-				var sql = "SELECT p.name, p.skill, pe.pe_id, r.round_id, r.squad, r.position "+
+				var sql = "SELECT p.name, p.skill, pe.pe_id, r.round_id, r.squad, r.position, sum(s.hit) as score, ss.squad_score "+
 						  "FROM participant p "+
 						  "JOIN participant_event pe ON pe.pid=p.pid "+
 						  "JOIN event e ON e.event_id=pe.event_id "+
 						  "JOIN rounds r ON e.event_id = r.event_id AND r.pe_id=pe.pe_id "+
+						  "LEFT JOIN shot s ON s.round_id=r.round_id "+
+						  "LEFT JOIN ( "+
+						  "	SELECT r.squad, sum(s.hit) AS squad_score "+
+						  "	FROM rounds r "+
+						  "	JOIN shot s ON s.round_id=r.round_id "+
+						  "	WHERE r.event_id="+getId('id')+" "+
+						  "	AND r.round_num="+current_round+" "+
+						  "	GROUP BY r.squad "+
+						  ") AS ss ON ss.squad=r.squad "+
 						  "WHERE e.event_id="+getId('id')+" AND r.round_num="+current_round+" "+
+						  "GROUP BY p.name, p.skill, pe.pe_id, r.round_id, r.squad, r.position "+
 						  "ORDER BY r.squad, r.position";
 				var result;
+				//alert(sql);
 				db = window.openDatabase("swgc", version, "swgc", 1000000);
 				db.transaction(
 				function (tx,errorCB){
@@ -90,25 +103,32 @@
 						function (tx, result){
 							if(result.rows.length == 0){
 								getDefaultRoundParticipants();
-							}else{	
-								displaySquads(result);
+							}else{
+								getNewShooters(result);			
 							}
 						}            
 				, errorCB);
 				}, errorCB);				
-			}		
+			}
+			function getNewShooters(result){
+				//TODO - find users not in a squad that have registered
+				displaySquads(result);
+			}
 			function getDefaultRoundParticipants(){
-				if(current_round == 1) {
-					var sql = "SELECT p.name, p.skill, pe.pe_id "+
-						  "FROM participant p "+
-						  "JOIN participant_event pe ON pe.pid=p.pid "+
-						  "JOIN event e ON e.event_id=pe.event_id "+
-						  "WHERE e.event_id="+getId('id')+" "+
-						  "ORDER BY p.skill";
-				} else{
-					var sql = "SELECT * FROM calculate_by_standing";
-				}
+				var sql = "SELECT p.name, p.skill, pe.pe_id, sum(s.hit) as score \n"+
+					  "FROM participant p \n"+
+					  "JOIN participant_event pe ON pe.pid=p.pid \n"+
+					  "JOIN event e ON e.event_id=pe.event_id \n"+
+					  "LEFT JOIN rounds r ON r.event_id=pe.event_id \n"+
+					  "LEFT JOIN shot s ON s.round_id=r.round_id \n"+
+					  "WHERE e.event_id="+getId('id')+" \n"+
+					  "AND pe.rounds>="+current_round+" \n"+
+					  "GROUP BY p.name, p.skill, pe.pe_id \n"+
+					  "ORDER BY sum(s.hit), p.skill ";
+					  
+
 				var result;
+				alert(sql);
 				db = window.openDatabase("swgc", version, "swgc", 1000000);
 				db.transaction(
 				function (tx,errorCB){
@@ -164,17 +184,31 @@
 			}
 			function displaySquads(result){
 				var t = 0;
+				var squad_score = new Array();
 				for (var i=0; i<result.rows.length; i++){ 
 					var row=result.rows.item(i);
+					var score = row['score'];
+					squad_score[i] = row['squad_score'];
+					if(squad_score[i]==null)
+						squad_score[i]=0;
+					if(score==null)
+						score=0;
 					if(t!=row['squad']){
 						t = row['squad'];
-						if(t==1)
-							var stringout = "<div id='squad"+row['squad']+"'><strong>Squad "+row['squad']+"</strong></div>";
+						if(t==1 || squad_score[i]==0 || squad_score[z]==0)
+							var stringout = "<div id='squad"+row['squad']+"' onClick=startMatch("+row['squad']+")><strong>Squad "+row['squad']+"</strong></div>";
 						else
-							var stringout = "<div id='squad"+row['squad']+"' position="+i+"><strong>Squad "+row['squad']+"</strong><span onclick='shiftSquadUp("+row['squad']+")'>+</span><span onclick='shiftSquadDown("+row['squad']+")'>-</span></div>";
+							var stringout = "<div id='squad"+row['squad']+"' position="+i+"><strong onClick=startMatch("+row['squad']+")>Squad "+row['squad']+"</strong><span onclick='shiftSquadUp("+row['squad']+")'>+</span><span onclick='shiftSquadDown("+row['squad']+")'>-</span></div>";
 						document.getElementById("squad").innerHTML = document.getElementById("squad").innerHTML +stringout;
 					}
-					var stringout = "<div id='position"+i+"' round_id="+row['round_id']+" squad='"+row['squad']+"' pe_id='"+row['pe_id']+"' position='"+row['position']+"'>"+row['name']+row['skill']+" <span onclick='shiftUp("+i+")'>+</span> <span onclick='shiftDown("+i+")'>-</span> </div>"; 
+					var stringout = "<div id='position"+i+"' round_id="+row['round_id']+" squad='"+row['squad']+"' pe_id='"+row['pe_id']+"' position='"+row['position']+"'><span>"+row['name']+"</span><span>"+score+"</span>";
+					z=i-1;
+					//alert(squad_score[i]+" "+squad_score[z]);
+					if(squad_score[i]==0 && i==0)
+						stringout = stringout+"<span onclick='shiftUp("+i+")'>+</span> <span onclick='shiftDown("+i+")'>-</span>";
+					else if(squad_score[i]==0 && squad_score[z]==0)
+						stringout = stringout+"<span onclick='shiftUp("+i+")'>+</span> <span onclick='shiftDown("+i+")'>-</span>";
+					stringout = stringout+"</div>"; 
 					document.getElementById("squad").innerHTML = document.getElementById("squad").innerHTML +stringout;
 				}
 			}
@@ -250,8 +284,14 @@
 						tx.executeSql(sql);
 				}, errorCB, clearList);
 			}
-			function startRound(){
+			//function remoteShots()
+			function startMatch(squad){
 				goToPage('match.html?id='+getId('id')+'&r='+current_round+'&s=1&st=1')
+				//alert('match.html?id='+getId('id')+'&r='+current_round+'&s='+squad+'&st=1')
+			}
+			function moveRound(offest){
+				r = parseInt(getId('r')) + offest;
+				window.location.href="squads.html?id="+getId('id')+'&r='+r;
 			}
         </script>
         <link rel="import" href="templates.html" id="templates">
@@ -276,8 +316,10 @@
             <div id='round'></div>
 			<div id='currentSquad'></div>
 			<div id='squad'></div>
-			<div id='reset'><input type=button value='Reset' onclick=resetRound()></div>
-			<div id='start'><input type=button value='Start' onclick=startRound()></div>
+			<div id='reset'><input type=button value='Reset Order' onclick=resetRound()></div>
+			<!--<div id='start'><input type=button value='Start' onclick=startRound()></div> -->
+			<div id='previous'><input type=button value='Previous Round' onclick=moveRound(-1)></div>
+			<div id='next'><input type=button value='Next Round' onclick=moveRound(1)></div>
         </div>
 
             
