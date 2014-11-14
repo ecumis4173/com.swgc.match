@@ -104,8 +104,6 @@ function getRegistration(pe_id){
                         if(row['rounds'] > 1)
                             rounds = row['rounds'];
                         document.getElementById("rounds").value=rounds;
-						var fee = row['fee'];
-						document.getElementById("fee").value=fee;
                         var subtotal = rounds*row['fee'];
                         document.getElementById("subtotal").innerHTML=subtotal;
                         var paid = 0;
@@ -121,19 +119,6 @@ function getRegistration(pe_id){
                 }            
             , errorCB);
         });
-}
-function reCalcBal(page){
-    //update rounds
-    var r = document.getElementById("rounds");
-	var rounds = r.options[r.selectedIndex].value;
-    var paid = document.getElementById("paid").value;
-	var fee = document.getElementById("fee").value;
-	var subtotal = rounds * fee;
-	var balance = subtotal-paid;
-	//alert(subtotal);
-	document.getElementById("subtotal").innerHTML=subtotal;
-	document.getElementById("balance").innerHTML=balance;
-	
 }
 function reCalc(page){
     //update rounds
