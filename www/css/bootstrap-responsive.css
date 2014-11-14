@@ -54,17 +54,16 @@
 }
 
 #content{
-    display:block;
     padding-top: 50px;
-    position: relative;
+    position: fixed;
     padding-bottom: 50px;
     background-color:#ffffcc;
     top:0px;
     bottom:0px;
-    right:-5px;
     width:100%;
     color: White;
-    
+    width:100%;
+    color: White;
 }
 
 #footer{
@@ -73,19 +72,6 @@
     bottom: 0;
     width: 100%;
     color: White;
-}
-
-//* Buttons //
-    btnpart {
-    background-image: url(img src="img/participants.png"); 
-    background-color: transparent; 
-    background-repeat: no-repeat;  
-    background-position: 0px 0px;  
-    border: none;           
-    cursor: pointer;        
-    height: 16px;           
-    padding-left: 16px;     
-    vertical-align: middle; 
 }
 
 .btn-primary {
