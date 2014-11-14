@@ -30,6 +30,9 @@
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" >
             function onDeviceReady() {
+				displayDetails();
+            }
+			function displayDetails(){
 				var sql = "SELECT r.round_id, pe.pe_id, p.name, r.round_num, r.squad, r.position, s.stand, s.shot, s.hit, t.total "+
 						  "FROM event e "+
 						  "JOIN participant_event pe ON pe.event_id=e.event_id "+
@@ -52,21 +55,33 @@
 				function (tx,errorCB){
 					tx.executeSql(sql, [], 
 						function (tx, result){
-							alert(result.rows.length);
+							//alert(result.rows.length);
 							var name = "";
+							var str = "<table>";
+							var squad = 1;
 							for (var i=0; i<result.rows.length; i++){
 								var row=result.rows.item(i);
+								if(squad != row['squad']){
+									str = str+"<td class=reportTable>"+total+"</td></tr><tr><td>&nbsp;</td></tr>";
+									squad = row['squad'];
+								}
 								if(name != row['name']) {
-									alert(row['name']+"--"+i);
+									if(i>0)
+										str = str+"<td  class=reportTable>"+total+"</td></tr>";
+									str = str+"<tr id=''><td>"+row['name']+"</td>";
+									//alert(row['name']+"--"+i);
 									name = row['name'];
 								}
-								rpt = document.getElementById('report');
-								rpt.innerHTML = rpt.innerHTML + "<div id=''>"+row['round_id']+"--"+row['pe_id']+"--"+row['name']+"--"+row['round_num']+"--"+row['squad']+"--"+row['position']+"--"+row['stand']+"--"+row['shot']+"--"+row['hit']+"--"+row['total']+"</div>"
-							} 
+								str = str+"<td class=reportTable>"+row['hit']+"</td>";
+								total = row['total'];
+							}
+							str = str+"<td class=reportTable>"+total+"</td></tr>";
+							rpt = document.getElementById('report');
+							rpt.innerHTML = str;
 					}            
 				, errorCB);
-				}, errorCB);						
-            }           
+				}, errorCB);
+			}
         </script>
         <link rel="import" href="templates.html" id="templates">
         <title>Hello World</title>

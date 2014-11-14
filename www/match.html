@@ -93,7 +93,7 @@
 				db.transaction(
 				function (tx,errorCB){
 					for(t=1; t<=5; t++) {
-						sql = "INSERT INTO shot (round_id, stand, shot, hit) VALUES ("+mRoundId+", "+position+", "+t+", 0)";
+						sql = "INSERT OR IGNORE INTO shot (round_id, stand, shot, hit) VALUES ("+mRoundId+", "+position+", "+t+", 0)";
 						//alert(sql);
 						tx.executeSql(sql);
 					}

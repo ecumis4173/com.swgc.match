@@ -126,3 +126,8 @@ h1 {
 .clayRow{
 	clear:both;
 }
+.reportTable{
+	border:1px solid black;
+	border-spacing: 0px;
+    border-collapse: separate;
+}

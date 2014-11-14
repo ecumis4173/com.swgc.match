@@ -143,6 +143,7 @@
 				var bump =0;
 				var t = 1;
 				var squad_num = 0;
+				var position = 0;
 				people = result.rows.length;
 				remainder = people % 5;
 				squads = parseInt(people / 5);
@@ -164,9 +165,11 @@
 						if(squads == 1)
 							t = t-bump;
 						squad_num++;
+						position=0;
 					}
+					position++;
 					var row=result.rows.item(i-1);
-					round_arr[i-1] = "INSERT INTO rounds (pe_id, round_num, event_id, squad, position) VALUES ("+row['pe_id']+", "+current_round+", "+getId('id')+", "+squad_num+", "+i+")";
+					round_arr[i-1] = "INSERT INTO rounds (pe_id, round_num, event_id, squad, position) VALUES ("+row['pe_id']+", "+current_round+", "+getId('id')+", "+squad_num+", "+position+")";
 					
 				}
 				insertRoundParticipant();
@@ -286,7 +289,7 @@
 			}
 			//function remoteShots()
 			function startMatch(squad){
-				goToPage('match.html?id='+getId('id')+'&r='+current_round+'&s=1&st=1')
+				goToPage('match.html?id='+getId('id')+'&r='+current_round+'&s='+squad+'&st=1')
 				//alert('match.html?id='+getId('id')+'&r='+current_round+'&s='+squad+'&st=1')
 			}
 			function moveRound(offest){
