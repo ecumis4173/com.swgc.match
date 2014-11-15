@@ -29,6 +29,7 @@
         <script type="text/javascript" src="js/database.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" >
+			var str = "";
             function onDeviceReady() {
 				displayDetails();
             }
@@ -57,18 +58,21 @@
 						function (tx, result){
 							//alert(result.rows.length);
 							var name = "";
-							var str = "<table>";
+							str = "<table>"+getTableHeader(1,1);
 							var squad = 1;
+							var new_squad = true;
 							for (var i=0; i<result.rows.length; i++){
 								var row=result.rows.item(i);
 								if(squad != row['squad']){
-									str = str+"<td class=reportTable>"+total+"</td></tr><tr><td>&nbsp;</td></tr>";
+									str = str+"<td class=reportTable>"+total+"</td></tr><tr><td>&nbsp;</td></tr>"+getTableHeader(row['round_num'], row['squad']);
 									squad = row['squad'];
-								}
+									new_squad = true;
+								} else
+									new_squad = false;
 								if(name != row['name']) {
-									if(i>0)
+									if(i>0 && new_squad==false)
 										str = str+"<td  class=reportTable>"+total+"</td></tr>";
-									str = str+"<tr id=''><td>"+row['name']+"</td>";
+									str = str+"<tr id=''><td>"+row['position']+"</td><td>"+row['name']+"</td>";
 									//alert(row['name']+"--"+i);
 									name = row['name'];
 								}
@@ -81,6 +85,36 @@
 					}            
 				, errorCB);
 				}, errorCB);
+			}
+			function getTableHeader(round_num, squad){
+				str = "<tr><td colspan=2>Round "+round_num+" <br>Squad "+squad+"</td>"+
+						"<td>SGL</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>SGL</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>SGL</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>SGL</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>SGL</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>Total</td></tr>";
+				return str;
 			}
         </script>
         <link rel="import" href="templates.html" id="templates">
