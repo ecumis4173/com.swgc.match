@@ -16,12 +16,22 @@
 			var squad;
 			var stand=1;
 			var round_ids = new Array();
+			var thisRoundId;
+			var position;
             function onDeviceReady(){
 				event_id = getId('id');
 				round_num = getId('r');
 				squad = getId('s');
 				stand = getId('st');
-				getShooters();
+				delShots();
+			}
+			function delShots(){
+				var sql = "SELECT * FROM shot";
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					tx.executeSql(sql);        
+				}, errorCB, getShooters);
 			}
 			function getShooters(){
 				var sql = 	"SELECT p.name, r.round_id, r.position "+
@@ -54,53 +64,64 @@
 				}, errorCB, getShots);
 			}
 			function getShots(){
-				//TODO -- update sql to increment stand # for each user.
-				var sql = 	"SELECT * \n"+
+				//TODO -- update sql to increment stand # for each user
+				
+				stand = getId('st');
+				//alert('stand'+stand);
+					for(t=0; t<round_ids.length; t++){
+						thisRoundId=round_ids[t];
+						standAdjust = t;
+						position = parseInt(stand)+parseInt(standAdjust);
+						//alert('pos'+position);
+						if(position>5)
+							position = position-5;
+						var sql = 	"SELECT * \n"+
 							"FROM shot s \n"+
 							"JOIN rounds r ON r.round_id=s.round_id \n"+
 							"WHERE r.round_num="+round_num+" AND r.event_id="+event_id+" \n"+
-							"AND r.squad="+squad+" "+
+							"AND r.squad="+squad+" \n"+
+							"AND s.stand="+position+" \n"+
+							"AND r.round_id="+round_ids[t]+" \n"+
 							"ORDER BY s.stand, s.shot";
-				//alert(sql);
-				//var sql = "DELETE FROM shot";
-				db = window.openDatabase("swgc", version, "swgc", 1000000);
-				db.transaction(
-				function (tx,errorCB){
-					tx.executeSql(sql, [], 
-						function (tx, result){
-							if(result.rows.length==0) {	
-								//alert("setDefaultShotsToMiss");
-								setDefaultShotsToMiss();
-							}
-							for (var i=0; i<result.rows.length; i++){ 
-								//alert('Loop here');
-								var row=result.rows.item(i);
-								var clay = 'Miss';
-								if(row['hit']==1)
-									clay = 'Hit';
-								col = document.getElementById('s'+row['stand']+'c'+row['shot'])
-								col.innerHTML=clay;
-								col.setAttribute('shot_id', row['shot_id']);
-							} 
-					}            
-				, errorCB);
-				}, errorCB);
-			}
-			function setDefaultShotsToMiss(){
-				db = window.openDatabase("swgc", version, "swgc", 1000000);
-				db.transaction(
-				function (tx,errorCB){
-					for(i=0; i<round_ids.length; i++){
-						var myStand = parseInt(stand)+i;
-						if(myStand > 5)
-							myStand = myStand-5;
-						for(t=1; t<=5; t++) {
-							sql = "INSERT INTO shot (round_id, stand, shot, hit) VALUES ("+round_ids[i]+", "+myStand+", "+t+", 0)";
-							//alert(sql);
-							tx.executeSql(sql);
-						}
+						//alert(sql);
+						loadShots(sql, thisRoundId, position);
 					}
-				}, errorCB, getShots);  //TODO = change to getShots
+	
+			}
+			function setDefaultShotsToMiss(mRoundId, position, loadShotsSql){
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					for(t=1; t<=5; t++) {
+						sql = "INSERT OR IGNORE INTO shot (round_id, stand, shot, hit) VALUES ("+mRoundId+", "+position+", "+t+", 0)";
+						//alert(sql);
+						tx.executeSql(sql);
+					}
+				}, errorCB, loadShots(loadShotsSql, mRoundId, position));  //TODO = change to getShots
+			}
+			function loadShots(sql, mRoundId, position){
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){			
+						tx.executeSql(sql, [], 
+							function (tx, result){
+								if(result.rows.length==0) {	
+									//alert("setDefaultShotsToMiss rid="+round_id+" pos="+position);
+									setDefaultShotsToMiss(mRoundId, position, sql);
+								}
+								for (var i=0; i<result.rows.length; i++){ 
+									//alert('Loop here'+result.rows.length);
+									var row=result.rows.item(i);
+									var clay = 'Miss';
+									if(row['hit']==1)
+										clay = 'Hit';
+									col = document.getElementById('s'+row['stand']+'c'+row['shot'])
+									col.innerHTML=clay;
+									col.setAttribute('shot_id', row['shot_id']);
+								} 
+							} 
+						, errorCB);
+				}, errorCB);
 			}
 			function toggleHit(stand, shot){
 				col=document.getElementById('s'+stand+'c'+shot);
@@ -110,7 +131,7 @@
 				if(clay=='Hit')
 					hit=0;
 				var sql = "UPDATE shot SET hit="+hit+" WHERE shot_id="+shot_id;
-				//alert(sql);
+				alert(sql);
 				db = window.openDatabase("swgc", version, "swgc", 1000000);
 				db.transaction(
 				function (tx,errorCB){
@@ -126,9 +147,22 @@
 			}
 			function rotate(){
 				stand++;
-				if(stand>5)
-					alert('complete round');
-				window.location.href="match.html?id="+event_id+"&r="+round_num+"&s="+squad+"&st="+stand;
+				if(stand>5) {
+					alert('Squad complete.');
+					window.location.href="squads.html?id="+getId('id')+"&r="+getId('r');
+				}
+				else {
+					window.location.href="match.html?id="+event_id+"&r="+round_num+"&s="+squad+"&st="+stand;					
+				}
+			}
+			function back(){
+				stand--
+				if(stand==0) {
+					alert('back to squad');
+					window.location.href="squads.html?id="+getId('id')+"&r="+getId('r');
+				} else {
+					window.location.href="match.html?id="+event_id+"&r="+round_num+"&s="+squad+"&st="+stand;
+				}
 			}
         </script>
         <link rel="import" href="templates.html" id="templates">
@@ -193,7 +227,10 @@
 				<div class=clayCol id=s5c5 shot_id='' onClick='toggleHit(5,5)'>Miss</div>
 			</div>
 			<div>
-				<input type=button class='btn-primary' value='Rotate' onClick='rotate()'>
+				<input type=button value='Back' onClick='back()'>
+			</div>
+			<div>
+				<input type=button value='Rotate' onClick='rotate()'>
 			</div>
 
         </div>
