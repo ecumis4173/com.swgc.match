@@ -25,15 +25,15 @@ body {
     -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
     -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
     background-color:#E4E4E4;
-    background-image:linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
-    background-image:-webkit-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
-    background-image:-ms-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    background-image:linear-gradient(top, #A7A7A7 0%, #ffffcc 100%);
+    background-image:-webkit-linear-gradient(top, #A7A7A7 0%, #ffffcc 100%);
+    background-image:-ms-linear-gradient(top, #A7A7A7 0%, #ffffcc 100%);
     background-image:-webkit-gradient(
         linear,
         left top,
         left bottom,
         color-stop(0, #A7A7A7),
-        color-stop(0.51, #E4E4E4)
+        color-stop(0.00, #ffffcc)
     );
     background-attachment:fixed;
     font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
@@ -46,6 +46,9 @@ body {
 }
 
 /* Portrait layout (default) */
+div {
+    color:black;
+}
 .app {
     background:url(../img/logo.png) no-repeat center top; /* 170px x 200px */
     position:absolute;             /* position in the center of the screen */
@@ -57,6 +60,7 @@ body {
     padding:180px 0px 0px 0px;     /* image height is 200px (bottom 20px are overlapped with text) */
     margin:-115px 0px 0px -112px;  /* offset vertical: half of image height and text area height */
                                    /* offset horizontal: half of text area width */
+    
 }
 
 /* Landscape layout (with min-width) */
@@ -112,4 +116,18 @@ h1 {
 .blink {
     animation:fade 3000ms infinite;
     -webkit-animation:fade 3000ms infinite;
+}
+.clayCol{
+	width:20%;
+	text-align:center;
+	padding:40, 0px, 40px, 0px;
+	float:left;
+}
+.clayRow{
+	clear:both;
+}
+.reportTable{
+	border:1px solid black;
+	border-spacing: 0px;
+    border-collapse: separate;
 }

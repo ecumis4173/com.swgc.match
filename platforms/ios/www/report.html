@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations 
+    under the License.
+-->
+<html>
+    <head>
+     <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="css/bootstrap-responsive.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <script type="text/javascript" src="js/database.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+        <script type="text/javascript" >
+			var str = "";
+            function onDeviceReady() {
+				displayDetails();
+            }
+			function displayDetails(){
+				var sql = "SELECT r.round_id, pe.pe_id, p.name, r.round_num, r.squad, r.position, s.stand, s.shot, s.hit, t.total "+
+						  "FROM event e "+
+						  "JOIN participant_event pe ON pe.event_id=e.event_id "+
+						  "JOIN participant p ON p.pid=pe.pid "+
+						  "JOIN rounds r ON pe.pe_id=r.pe_id "+
+						  "JOIN shot s ON s.round_id=r.round_id "+
+						  "LEFT JOIN ( "+
+							"	SELECT r.round_id, SUM(s.hit) AS total "+
+							"	FROM participant_event pe "+
+							"	JOIN rounds r ON r.pe_id=pe.pe_id "+
+							"	JOIN shot s ON s.round_id=r.round_id "+
+							"	WHERE pe.event_id="+getId('id')+" "+
+							"	GROUP BY r.round_id "+
+						  ") AS t ON t.round_id=r.round_id "+
+						  "WHERE e.event_id="+getId('id')+" "+
+						  "ORDER BY r.round_num,r.squad,r.position,shot_id";
+				//var sql = "SELECT * FROM shot";
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					tx.executeSql(sql, [], 
+						function (tx, result){
+							//alert(result.rows.length);
+							var name = "";
+							str = "<table>"+getTableHeader(1,1);
+							var squad = 1;
+							var new_squad = true;
+							for (var i=0; i<result.rows.length; i++){
+								var row=result.rows.item(i);
+								if(squad != row['squad']){
+									str = str+"<td class=reportTable>"+total+"</td></tr><tr><td>&nbsp;</td></tr>"+getTableHeader(row['round_num'], row['squad']);
+									squad = row['squad'];
+									new_squad = true;
+								} else
+									new_squad = false;
+								if(name != row['name']) {
+									if(i>0 && new_squad==false)
+										str = str+"<td  class=reportTable>"+total+"</td></tr>";
+									str = str+"<tr id=''><td>"+row['position']+"</td><td>"+row['name']+"</td>";
+									//alert(row['name']+"--"+i);
+									name = row['name'];
+								}
+								str = str+"<td class=reportTable>"+row['hit']+"</td>";
+								total = row['total'];
+							}
+							str = str+"<td class=reportTable>"+total+"</td></tr>";
+							rpt = document.getElementById('report');
+							rpt.innerHTML = str;
+					}            
+				, errorCB);
+				}, errorCB);
+			}
+			function getTableHeader(round_num, squad){
+				str = "<tr><td colspan=2>Round "+round_num+" <br>Squad "+squad+"</td>"+
+						"<td>SGL</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>SGL</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>SGL</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>SGL</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>SGL</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>1</td>"+
+						"<td>2</td>"+
+						"<td>Total</td></tr>";
+				return str;
+			}
+        </script>
+        <link rel="import" href="templates.html" id="templates">
+        <title>Hello World</title>
+    </head>
+    <body onload="onDeviceReady()">
+        <div id="container">
+        
+        <!-- Header Template-->
+        <script>
+            var link = document.querySelector('link[rel="import"]');
+            var template = link.import.querySelector('template[id="header"');
+            var clone = document.importNode(template.content, true);
+            document.querySelector('#container').appendChild(clone);
+        </script>
+        <!-- -------------------- -->
+        
+                
+        <!-- PUT PAGE CONTENT HERE -->
+        <div id='content' class='content'>
+			<div id=report></div>
+        </div>
+       
+        <!-- Footer Template-->
+        <script>
+            var link = document.querySelector('link[rel="import"]');
+            var template = link.import.querySelector('template[id="footer"');
+            var clone = document.importNode(template.content, true);
+            document.querySelector('#container').appendChild(clone);
+        </script>
+        </div>
+        
+        
+        <!-- DO NOT EDIT BELOW HERE-->
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">app.initialize();</script>
+
+    </body>
+</html>

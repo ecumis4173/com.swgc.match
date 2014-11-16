@@ -1,46 +1,51 @@
-// Wait for PhoneGap to load
-//
-var db
-document.addEventListener("deviceready", onDeviceReady, false);
+var version = "1.9";
 
 
-// PhoneGap is ready
-function onDeviceReady() {
-    db = window.openDatabase("swgc", "1.0", "swgc", 1000000);
-    populateDB(db);
+function setDatabase(){
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
+    db.transaction(createDB, errorCB, successCB);
 }
-function populateDB(tx) {
-    //tx.executeSql('CREATE TABLE IF NOT EXISTS DEMO (id unique, data)');
-    //tx.executeSql('INSERT INTO DEMO (id, data) VALUES (2, "Second row")');
-    
-    tx.executeSql('CREATE TABLE IF NOT EXISTS club (club_id INTEGER PRIMARY KEY, club_name VARCHAR(255), club_zip VARCHAR(5))');
-    tx.executeSql('CREATE TABLE IF NOT EXISTS event (event_id INTEGER PRIMARY KEY AUTOINCREMENT, event_name VARCHAR(255), date, feeFLOAT(6,2), round INTEGER, max_hits INTEGER)');
-    
-    tx.executeSql('CREATE TABLE IF NOT EXISTS participant (pid INTEGER PRIMARY KEY AUTOINCREMENT, pid_cloud INTEGER, name VARCHAR(255), emailCARCHAR(255))');
-    
-    tx.executeSql('CREATE TABLE IF NOT EXISTS participant_event (pid INTEGER, event_id INTEGER, rounds INTEGER,'
-                + 'fee_per_round FLOAT(6,2), paid FLOAT(6,2), rounds_complete INTEGER, order INTEGER, PRIMARY KEY (pid, event_id))');
-    
-    tx.executeSql('CREATE TABLE IF NOT EXISTS participant_score (pid INTEGER, event_id INTEGER, round INTEGER, hits INTEGER, PRIMARY KEY (pid, event_id))');
-    
+function createDB(tx) {
+
+    tx.executeSql('CREATE TABLE IF NOT EXISTS event (event_id INTEGER PRIMARY KEY AUTOINCREMENT, event_name VARCHAR(55), current_round INTEGER, date BIGINT, fee FLOAT)'); 
+    //tx.executeSql('ALTER TABLE event ADD current_round INTEGER');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS participant (pid INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, email VARCHAR, skill INTEGER)');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS participant_event (pe_id INTEGER PRIMARY KEY AUTOINCREMENT, pid INTEGER, event_id INTEGER, rounds INTEGER, paid FLOAT, rounds_complete INTEGER)');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS rounds (round_id INTEGER PRIMARY KEY AUTOINCREMENT, round_num INTEGER, pe_id INTEGER, event_id INTEGER, complete INTEGER, squad INTEGER, position INTEGER, UNIQUE (round_num, pe_id, event_id, squad, position) )');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS shot   (shot_id  INTEGER PRIMARY KEY AUTOINCREMENT, round_id  INTEGER, stand INTEGER, shot     INTEGER, hit INTEGER, UNIQUE (round_id, stand, shot))');
 }
-function errorCB(err) {
-    alert("Error processing SQL: "+err.code);
+function successCB(page) {
+    //alert("Db created");
 }
-function successCB() {
-    alert("success!");
+function errorCB(err, mSql) {
+    alert("Error processing SQL: "+err.code+" "+err.message+" SQL:"+mSql);
 }
 function queryDB(tx) {
-    tx.executeSql('SELECT * FROM DEMO', [], querySuccess, errorCB);
+    tx.executeSql(sql, [], querySuccess, errorCB);
 }
-function querySuccess(tx, results) {
+function executeSql(tx) {
+    tx.executeSql(sql);
+}
+function querySuccess(tx, mResults) {
     // this will be empty since no rows were inserted.
-    console.log("Insert ID = " + results.insertId);
+    alert("Insert ID = " + mResults.insertId);
     // this will be 0 since it is a select statement
-    console.log("Rows Affected = " + results.rowAffected);
+    alert("Rows Affected = " + mResults.rowAffected);
     // the number of rows returned by the select statement
-    console.log("Insert ID = " + results.rows.length);
+    alert("Insert ID = " + mResults.rows.length);
+    result = mResults;
 }
-function errorCB(err) {
-    alert("Error processing SQL: "+err.code);
+function debugAlert(txt){
+    alert(txt);
+}
+function killDb(){
+    db = window.openDatabase("swgc", version, "swgc", 1000000);
+    db.transaction(function (tx){
+        //tx.executeSql('DROP TABLE event');
+        //tx.executeSql('DROP TABLE participant');
+        //tx.executeSql('DROP TABLE participant_event');
+        tx.executeSql('DROP TABLE rounds');
+        tx.executeSql('DROP TABLE shot');
+    }
+    , errorCB, successCB);
 }

@@ -6,4 +6,7 @@
 /Users/orange/com.swgc.match/platforms/android/ant-build/classes/com/sirwalter/match/R$string.class \
 /Users/orange/com.swgc.match/platforms/android/ant-build/classes/com/sirwalter/match/R$xml.class \
 /Users/orange/com.swgc.match/platforms/android/ant-build/classes/com/sirwalter/match/R.class \
+/Users/orange/com.swgc.match/platforms/android/ant-build/classes/de/appplant/cordova/emailcomposer/EmailComposer$1.class \
+/Users/orange/com.swgc.match/platforms/android/ant-build/classes/de/appplant/cordova/emailcomposer/EmailComposer$2.class \
+/Users/orange/com.swgc.match/platforms/android/ant-build/classes/de/appplant/cordova/emailcomposer/EmailComposer.class \
 /Users/orange/com.swgc.match/platforms/android/ant-build/dexedLibs/classes-be854b7dd9e780ccf8457b4b2936016e.jar \

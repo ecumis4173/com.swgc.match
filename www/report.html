@@ -30,6 +30,7 @@
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" >
 			var str = "";
+            var csv = "";
             function onDeviceReady() {
 				displayDetails();
             }
@@ -59,27 +60,34 @@
 							//alert(result.rows.length);
 							var name = "";
 							str = "<table>"+getTableHeader(1,1);
+                            csv = getCsvHeader(1,1);
 							var squad = 1;
 							var new_squad = true;
 							for (var i=0; i<result.rows.length; i++){
 								var row=result.rows.item(i);
 								if(squad != row['squad']){
 									str = str+"<td class=reportTable>"+total+"</td></tr><tr><td>&nbsp;</td></tr>"+getTableHeader(row['round_num'], row['squad']);
+                                    csv = csv+total+"\n\n"+getCsvHeader(row['round_num'], row['squad']);
 									squad = row['squad'];
 									new_squad = true;
 								} else
 									new_squad = false;
 								if(name != row['name']) {
-									if(i>0 && new_squad==false)
+									if(i>0 && new_squad==false) {
 										str = str+"<td  class=reportTable>"+total+"</td></tr>";
+                                        csv = csv+total+"\n";
+                                    }
 									str = str+"<tr id=''><td>"+row['position']+"</td><td>"+row['name']+"</td>";
+                                    csv = csv+row['position']+","+row['name']+",";
 									//alert(row['name']+"--"+i);
 									name = row['name'];
 								}
 								str = str+"<td class=reportTable>"+row['hit']+"</td>";
+                                csv = csv+row['hit']+",";
 								total = row['total'];
 							}
 							str = str+"<td class=reportTable>"+total+"</td></tr>";
+                            csv = csv+total+"\n"; 
 							rpt = document.getElementById('report');
 							rpt.innerHTML = str;
 					}            
@@ -87,7 +95,7 @@
 				}, errorCB);
 			}
 			function getTableHeader(round_num, squad){
-				str = "<tr><td colspan=2>Round "+round_num+" <br>Squad "+squad+"</td>"+
+				var str = "<tr><td colspan=2>Round "+round_num+" <br>Squad "+squad+"</td>"+
 						"<td>SGL</td>"+
 						"<td>1</td>"+
 						"<td>2</td>"+
@@ -115,7 +123,48 @@
 						"<td>2</td>"+
 						"<td>Total</td></tr>";
 				return str;
+            }
+			function getCsvHeader(round_num, squad){
+				var csv = "Round "+round_num+"Squad "+squad+","+
+						"SGL,"+
+						"1,"+
+						"2,"+
+						"1,"+
+						"2,"+
+                        "SGL,"+
+						"1,"+
+						"2,"+
+						"1,"+
+						"2,"+
+                        "SGL,"+
+						"1,"+
+						"2,"+
+						"1,"+
+						"2,"+
+                        "SGL,"+
+						"1,"+
+						"2,"+
+						"1,"+
+						"2,"+
+                        "SGL,"+
+						"1,"+
+						"2,"+
+						"1,"+
+						"2,"+
+						"Total\n";
+				return csv;
 			}
+            function sendMail(){
+                window.plugin.email.open({
+                    to: 'nm4p3s@gmail.com',
+                    cc: '',
+                    bcc: '',
+                    subject: 'Match Results',
+                    body: 'See attached for the match results.',
+                    attachments: ['base64:match.csv//'+btoa(csv)],
+                    isHtml: false
+                });
+            }
         </script>
         <link rel="import" href="templates.html" id="templates">
         <title>Hello World</title>
@@ -136,6 +185,7 @@
         <!-- PUT PAGE CONTENT HERE -->
         <div id='content' class='content'>
 			<div id=report></div>
+            <div id=email><input type=button value='Email' onClick=sendMail()></div>
         </div>
        
         <!-- Footer Template-->
