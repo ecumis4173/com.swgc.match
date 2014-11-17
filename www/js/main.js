@@ -36,8 +36,10 @@ function addPerson(page) {
 	var e = document.getElementById("skill");
 	var skill = e.options[e.selectedIndex].value;
 	sql = "INSERT INTO participant (name, email, skill) VALUES ('"+name+"','"+email+"','"+skill+"')";
+	//alert('here 2');
 	if(getId('pe') > 0)
 		sql = "UPDATE participant SET name='"+name+"', email='"+email+"', skill='"+skill+"' WHERE pid="+pid;
+	//alert(sql);
 	
 	
     db = window.openDatabase("swgc", version, "swgc", 1000000);
@@ -140,6 +142,7 @@ function reCalc(page){
     var rounds = document.getElementById("rounds").value;
     var paid = document.getElementById("paid").value;
     sql = "UPDATE participant_event SET rounds='"+rounds+"', paid='"+paid+"' WHERE pe_id='"+getId('pe')+"'";
+	//alert(sql);
     db = window.openDatabase("swgc", version, "swgc", 1000000);
     db.transaction(
         function (tx){

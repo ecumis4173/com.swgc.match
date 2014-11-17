@@ -72,15 +72,16 @@
 						</select>
 					</div>	
                 <div>Rounds:</div>
-                    <div><select onchange="reCalc()" name='rounds' id='rounds'><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+                    <div><select onchange="reCalcBal()" name='rounds' id='rounds'><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
                 <div>Subtotal:</div>
                     <div id=subtotal></div>
                 <div>Paid:</div>
-                    <div><input onchange="reCalc()" type=text name=paid id=paid value=''></div>
+                    <div><input onchange="reCalcBal()" type=text name=paid id=paid value=''></div>
                 <div>Balance:</div>
                     <div id=balance></div>
 				<input type=hidden name=pid id=pid>
-                <div>//TODO - option to edit name, email, and skill level</div>
+                <input type=hidden name=pid id=pid>
+				<input type=hidden name=fee id=fee>
             </div>
             <div id='addPersonButton' class='buttons'>
                 <div><input type="button" class="btn-primary" name="delete" value="Delete" onClick="rmRegistration()"></div>

@@ -9,4 +9,5 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
+	<gap:plugin name="de.appplant.cordova.plugin.email-composer" version="0.8.1" />
 </widget>

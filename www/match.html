@@ -131,7 +131,7 @@
 				if(clay=='Hit')
 					hit=0;
 				var sql = "UPDATE shot SET hit="+hit+" WHERE shot_id="+shot_id;
-				alert(sql);
+				//alert(sql);
 				db = window.openDatabase("swgc", version, "swgc", 1000000);
 				db.transaction(
 				function (tx,errorCB){
@@ -158,7 +158,7 @@
 			function back(){
 				stand--
 				if(stand==0) {
-					alert('back to squad');
+					//alert('Back to squads');
 					window.location.href="squads.html?id="+getId('id')+"&r="+getId('r');
 				} else {
 					window.location.href="match.html?id="+event_id+"&r="+round_num+"&s="+squad+"&st="+stand;
