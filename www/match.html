@@ -56,7 +56,7 @@
 									position = position-5;
 								element = 'stand'+position;
 								//alert(element);
-								document.getElementById(element).innerHTML=row['name'];
+								document.getElementById(element).innerHTML=position+": "+row['name'];
 							} 
 							
 					}            
@@ -112,12 +112,13 @@
 								for (var i=0; i<result.rows.length; i++){ 
 									//alert('Loop here'+result.rows.length);
 									var row=result.rows.item(i);
-									var clay = 'Miss';
+									var clay = '<img src="img/clay.png" alt="Miss">';
 									if(row['hit']==1)
-										clay = 'Hit';
+										clay = '<img src=\'img/clayhit.png\' alt=\'Hit\'>';
 									col = document.getElementById('s'+row['stand']+'c'+row['shot'])
 									col.innerHTML=clay;
 									col.setAttribute('shot_id', row['shot_id']);
+									col.setAttribute('hit', row['hit']);
 								} 
 							} 
 						, errorCB);
@@ -125,11 +126,13 @@
 			}
 			function toggleHit(stand, shot){
 				col=document.getElementById('s'+stand+'c'+shot);
-				clay = col.innerHTML;
 				shot_id = col.getAttribute('shot_id');
-				hit=1;
-				if(clay=='Hit')
+				hit = parseInt(col.getAttribute('hit'));
+				if(hit==1)
 					hit=0;
+				else
+					hit=1;
+				col.setAttribute('hit', hit);
 				var sql = "UPDATE shot SET hit="+hit+" WHERE shot_id="+shot_id;
 				//alert(sql);
 				db = window.openDatabase("swgc", version, "swgc", 1000000);
@@ -138,9 +141,9 @@
 							tx.executeSql(sql);
 				}, errorCB, 
 					function(){
-						var clay = 'Miss';
+						var clay = '<img src=\'img/clay.png\' alt=\'Miss\'>';
 						if(hit==1)
-							clay = 'Hit';
+							clay = '<img src=\'img/clayhit.png\' alt=\'Hit\'>';
 						col.innerHTML=clay;
 					}
 				);
@@ -192,39 +195,39 @@
 				<div class=clayCol id=stand5 >&nbsp;</div>
 			</div>
 			<div class=clayRow id=clays>
-				<div class=clayCol id=s1c1 shot_id='' onClick='toggleHit(1,1)'>Miss</div>
-				<div class=clayCol id=s2c1 shot_id='' onClick='toggleHit(2,1)'>Miss</div>
-				<div class=clayCol id=s3c1 shot_id='' onClick='toggleHit(3,1)'>Miss</div>
-				<div class=clayCol id=s4c1 shot_id='' onClick='toggleHit(4,1)'>Miss</div>
-				<div class=clayCol id=s5c1 shot_id='' onClick='toggleHit(5,1)'>Miss</div>
+				<div class=clayCol id=s1c1 shot_id='' onClick='toggleHit(1,1)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s2c1 shot_id='' onClick='toggleHit(2,1)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s3c1 shot_id='' onClick='toggleHit(3,1)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s4c1 shot_id='' onClick='toggleHit(4,1)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s5c1 shot_id='' onClick='toggleHit(5,1)'><img src='img/clay.png' alt='Miss'></div>
 			</div>
 			<div class=clayRow id=clays>
-				<div class=clayCol id=s1c2 shot_id='' onClick='toggleHit(1,2)'>Miss</div>
-				<div class=clayCol id=s2c2 shot_id='' onClick='toggleHit(2,2)'>Miss</div>
-				<div class=clayCol id=s3c2 shot_id='' onClick='toggleHit(3,2)'>Miss</div>
-				<div class=clayCol id=s4c2 shot_id='' onClick='toggleHit(4,2)'>Miss</div>
-				<div class=clayCol id=s5c2 shot_id='' onClick='toggleHit(5,2)'>Miss</div>
+				<div class=clayCol id=s1c2 shot_id='' onClick='toggleHit(1,2)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s2c2 shot_id='' onClick='toggleHit(2,2)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s3c2 shot_id='' onClick='toggleHit(3,2)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s4c2 shot_id='' onClick='toggleHit(4,2)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s5c2 shot_id='' onClick='toggleHit(5,2)'><img src='img/clay.png' alt='Miss'></div>
 			</div>
 			<div class=clayRow id=clays>
-				<div class=clayCol id=s1c3 shot_id='' onClick='toggleHit(1,3)'>Miss</div>
-				<div class=clayCol id=s2c3 shot_id='' onClick='toggleHit(2,3)'>Miss</div>
-				<div class=clayCol id=s3c3 shot_id='' onClick='toggleHit(3,3)'>Miss</div>
-				<div class=clayCol id=s4c3 shot_id='' onClick='toggleHit(4,3)'>Miss</div>
-				<div class=clayCol id=s5c3 shot_id='' onClick='toggleHit(5,3)'>Miss</div>
+				<div class=clayCol id=s1c3 shot_id='' onClick='toggleHit(1,3)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s2c3 shot_id='' onClick='toggleHit(2,3)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s3c3 shot_id='' onClick='toggleHit(3,3)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s4c3 shot_id='' onClick='toggleHit(4,3)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s5c3 shot_id='' onClick='toggleHit(5,3)'><img src='img/clay.png' alt='Miss'></div>
 			</div>
 			<div class=clayRow id=clays>
-				<div class=clayCol id=s1c4 shot_id='' onClick='toggleHit(1,4)'>Miss</div>
-				<div class=clayCol id=s2c4 shot_id='' onClick='toggleHit(2,4)'>Miss</div>
-				<div class=clayCol id=s3c4 shot_id='' onClick='toggleHit(3,4)'>Miss</div>
-				<div class=clayCol id=s4c4 shot_id='' onClick='toggleHit(4,4)'>Miss</div>
-				<div class=clayCol id=s5c4 shot_id='' onClick='toggleHit(5,4)'>Miss</div>
+				<div class=clayCol id=s1c4 shot_id='' onClick='toggleHit(1,4)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s2c4 shot_id='' onClick='toggleHit(2,4)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s3c4 shot_id='' onClick='toggleHit(3,4)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s4c4 shot_id='' onClick='toggleHit(4,4)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s5c4 shot_id='' onClick='toggleHit(5,4)'><img src='img/clay.png' alt='Miss'></div>
 			</div>
 			<div class=clayRow id=clays>
-				<div class=clayCol id=s1c5 shot_id='' onClick='toggleHit(1,5)'>Miss</div>
-				<div class=clayCol id=s2c5 shot_id='' onClick='toggleHit(2,5)'>Miss</div>
-				<div class=clayCol id=s3c5 shot_id='' onClick='toggleHit(3,5)'>Miss</div>
-				<div class=clayCol id=s4c5 shot_id='' onClick='toggleHit(4,5)'>Miss</div>
-				<div class=clayCol id=s5c5 shot_id='' onClick='toggleHit(5,5)'>Miss</div>
+				<div class=clayCol id=s1c5 shot_id='' onClick='toggleHit(1,5)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s2c5 shot_id='' onClick='toggleHit(2,5)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s3c5 shot_id='' onClick='toggleHit(3,5)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s4c5 shot_id='' onClick='toggleHit(4,5)'><img src='img/clay.png' alt='Miss'></div>
+				<div class=clayCol id=s5c5 shot_id='' onClick='toggleHit(5,5)'><img src='img/clay.png' alt='Miss'></div>
 			</div>
 			<div>
 				<input type=button value='Back' onClick='back()'>
