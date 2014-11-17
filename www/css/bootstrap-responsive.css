@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * Bootstrap Responsive v2.3.2
  *
  * Copyright 2013 Twitter, Inc
@@ -52,10 +52,47 @@
     z-index: 1;
     color: White;
 }
+             
+#navbar
+{
+padding-top: 40px;
+padding-left:1px;
+font: bold 12px Verdana, sans-serif;
+}
 
+#navbar li
+{
+list-style: none;
+display: inline;
+}
+
+#navbar li a
+{
+padding: 1px 0.5em;
+border: 1px solid #778;
+background: #DDE;
+text-decoration: none;
+}
+
+#navbar li a:link { color: #448; }
+#navbar li a:hover
+{
+color: #000;
+background: #AAE;
+border-color: #227;
+}
+
+#navbar li a#current
+{
+background: white;
+border-bottom: 1px solid white;
+}
+#eventList{
+    display: inline;
+}
 #content{
     display:block;
-    padding-top: 50px;
+    padding-top: 5px;
     position: relative;
     padding-bottom: 50px;
     background-color:#ffffcc;
@@ -66,7 +103,6 @@
     color: White;
     
 }
-
 #footer{
     background-color: #777;
     position: fixed;
