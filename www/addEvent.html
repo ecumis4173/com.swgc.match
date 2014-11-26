@@ -41,31 +41,31 @@
         <div id="container">
         
         <!-- Header Template-->
-       <div id='header'> <script>
+       <script>
             var link = document.querySelector('link[rel="import"]');
             var template = link.import.querySelector('template[id="header"');
             var clone = document.importNode(template.content, true);
             document.querySelector('#container').appendChild(clone);               
-                   </script></div>
+        </script>
         
         
                 
         <!-- PUT PAGE CONTENT HERE -->
         <div id='content' class='content'>
+		<div class='heading'><h1>Add Event</h1></div>
         <div id='eventForm' class='event form'>
-        <div>Name:</div>
-        </div>
-            <div><input type="text" id="eventName" size="25" value="" placeholder='Event Name'></div>
-                <div>Date:</div>
-                    <div><input type="date" id="date" value=""></div>
-                <div>Fee Per Round:</div>
-                    <div><input type="text" id="fee" size="25" value="" placeholder='Fee for Round'></div>
+				<div class='form_element'>Name:</div>
+					<div class='input'><input type="text" id="eventName" size="25" value="" placeholder='Event Name'></div>
+                <div class='form_element'>Date:</div>
+                    <div class='input'><input type="date" id="date" value=""></div>
+                <div class='form_element'>Fee:</div>
+                    <div class='input'><input type="text" id="fee" size="25" value="" placeholder='Fee for Round'></div>
                 <div id='addEventButton' class='buttons'>
-                <div><input type="button" class="btn-primary" name="cancel" value="Cancel" onClick="goToPage('index.html')"></div>
-                <div><input type="button" class="btn-primary" name="submit" value="Submit" onClick="addEvent('index.html')"></div>
-        </div>
+					<div><input type="button" class="btn-primary" name="cancel" value="Cancel" onClick="goToPage('index.html')"></div>
+					<div><input type="button" class="btn-primary" name="submit" value="Submit" onClick="addEvent('index.html')"></div>
+				</div>
         
-                    </div>
+        </div>
         <div id='footer'> <script>
             var link = document.querySelector('link[rel="import"]');
             var template = link.import.querySelector('template[id="footer"');

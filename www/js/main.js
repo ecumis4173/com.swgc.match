@@ -165,7 +165,7 @@ function getEvents(){
                     for (var i=0; i<result.rows.length; i++){ 
                         var row=result.rows.item(i);
                         //alert(" " + row['event_id']+" " + row['event_name']+" " + row['date']+" ");
-                        var stringout = "<div id=e"+i+" onClick=goToPage('event.html?id="+row['event_id']+"')>"+row['event_id']+" " + row['event_name']+" " + row['date'] + "</a></div>"; 
+                        var stringout = "<div class='list' id=e"+i+" onClick=goToPage('event.html?id="+row['event_id']+"')>"+ row['event_name']+" " + row['date'] + "</a></div>"; 
                         document.getElementById("eventList").innerHTML = document.getElementById("eventList").innerHTML +stringout;
                     } 
                 }            

@@ -51,13 +51,13 @@
                 
         <!-- PUT PAGE CONTENT HERE -->
         <div id='content' class='content'>
+		<div class='heading'><h1>New Participant</h1></div>
             <div id='eventForm' class='event form'>
-        <div>Name:</div>
-        </div>
-            <div><input type="text" id="name" size="25" value="" placeholder='Full Name'></<div>
-                    <div>Email:</div>
-                <div><input type="text" id="email" size="25" value="" placeholder='Email Address'></div>
-                <div>Skill Level:</div>
+				<div class='form_element'>Name:</div>
+					<div><input type="text" id="name" size="25" value="" placeholder='Full Name'></div>
+                <div class='form_element'>Email:</div>
+					<div><input type="text" id="email" size="25" value="" placeholder='Email Address'></div>
+                <div class='form_element'>Skill Level:</div>
                 <div><select id="skill">
                     <option value="1" selected=selected>Master</option>
                     <option value="2">Intermediate</option>
@@ -66,7 +66,7 @@
                 <div id='addPersonButton' class='buttons'>
                 <div><input type="button" class="btn-primary" name="cancel" value="Cancel" onClick="goToPage('index.html?id=', 'id')"></div>
                 <div><input type="button" class="btn-primary" id='add' name="add" value="Add" onClick="addPerson('registration.html?id=', 'id')"></div>
-                 </div></div>
+                 </div>
         </div>
         </div>
         <script>

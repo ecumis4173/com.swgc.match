@@ -30,10 +30,40 @@
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" >
 			var str = "";
-            var csv = "";
+			var lb = "Leader Board<table id=lb class='table lb'><tr class=th2><td>Name</td><td>Score</td></tr>";
+            var csv = "Leader Board\nName,Score\n";
             function onDeviceReady() {
+				getLeaderBoard();
 				displayDetails();
             }
+			function getLeaderBoard(){
+				var sql = "SELECT pe.pe_id, p.name, SUM(s.hit) as score "+
+						  "FROM event e "+
+						  "JOIN participant_event pe ON pe.event_id=e.event_id "+
+						  "JOIN participant p ON p.pid=pe.pid "+
+						  "JOIN rounds r ON pe.pe_id=r.pe_id "+
+						  "JOIN shot s ON s.round_id=r.round_id "+
+						  "WHERE e.event_id="+getId('id')+" "+
+						  "GROUP BY pe.pe_id, p.name "+
+						  "ORDER BY SUM(s.hit) DESC";
+				//alert(sql);	
+				db = window.openDatabase("swgc", version, "swgc", 1000000);
+				db.transaction(
+				function (tx,errorCB){
+					tx.executeSql(sql, [], 
+						function (tx, result){
+							for (var i=0; i<result.rows.length; i++){
+								var row=result.rows.item(i);
+								lb=lb+"<tr><td>"+row['name']+"</td><td>"+row['score']+"</td></tr>";
+								csv=csv+row['name']+","+row['score']+"\n";
+							}
+							lb=lb+"</table>";
+							csv=csv+"\n\n";
+							document.getElementById('leaderboard').innerHTML=lb;
+						}            
+				, errorCB);
+				}, errorCB);						  
+			}
 			function displayDetails(){
 				var sql = "SELECT r.round_id, pe.pe_id, p.name, r.round_num, r.squad, r.position, s.stand, s.shot, s.hit, t.total "+
 						  "FROM event e "+
@@ -60,13 +90,13 @@
 							//alert(result.rows.length);
 							var name = "";
 							str = "<table>"+getTableHeader(1,1);
-                            csv = getCsvHeader(1,1);
+                            csv = csv+getCsvHeader(1,1);
 							var squad = 1;
 							var new_squad = true;
 							for (var i=0; i<result.rows.length; i++){
 								var row=result.rows.item(i);
 								if(squad != row['squad']){
-									str = str+"<td class=reportTable>"+total+"</td></tr><tr><td>&nbsp;</td></tr>"+getTableHeader(row['round_num'], row['squad']);
+									str = str+"<td class=reportTable>"+total+"</td></tr><tr style='visibility:hidden;'><td>&nbsp;</td></tr>"+getTableHeader(row['round_num'], row['squad']);
                                     csv = csv+total+"\n\n"+getCsvHeader(row['round_num'], row['squad']);
 									squad = row['squad'];
 									new_squad = true;
@@ -184,7 +214,8 @@
                 
         <!-- PUT PAGE CONTENT HERE -->
         <div id='content' class='content'>
-			<div id=report></div>
+			<div id=leaderboard></div><br><br>
+			<div id=report></div><br><br>
             <div id=email><input type=button value='Email' onClick=sendMail()></div>
         </div>
        
