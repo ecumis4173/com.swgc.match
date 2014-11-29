@@ -30,7 +30,7 @@
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" >
 			var str = "";
-			var lb = "Leader Board<table id=lb class='table lb'><tr class=th2><td>Name</td><td>Score</td></tr>";
+			var lb = "Leader Board<table id=lb class='table lb'><tr class=th2><td class='report'><b>Name</b></td><td class='report'><b>Score</b></td></tr>";
             var csv = "Leader Board\nName,Score\n";
             function onDeviceReady() {
 				getLeaderBoard();
@@ -54,7 +54,7 @@
 						function (tx, result){
 							for (var i=0; i<result.rows.length; i++){
 								var row=result.rows.item(i);
-								lb=lb+"<tr><td>"+row['name']+"</td><td>"+row['score']+"</td></tr>";
+								lb=lb+"<tr><td class='report'>"+row['name']+"</td><td class='report'>"+row['score']+"</td></tr>";
 								csv=csv+row['name']+","+row['score']+"\n";
 							}
 							lb=lb+"</table>";
@@ -96,7 +96,7 @@
 							for (var i=0; i<result.rows.length; i++){
 								var row=result.rows.item(i);
 								if(squad != row['squad']){
-									str = str+"<td class=reportTable>"+total+"</td></tr><tr style='visibility:hidden;'><td>&nbsp;</td></tr>"+getTableHeader(row['round_num'], row['squad']);
+									str = str+"<td class=reportTable>"+total+"</td></tr></table>"+getTableHeader(row['round_num'], row['squad']);
                                     csv = csv+total+"\n\n"+getCsvHeader(row['round_num'], row['squad']);
 									squad = row['squad'];
 									new_squad = true;
@@ -107,7 +107,7 @@
 										str = str+"<td  class=reportTable>"+total+"</td></tr>";
                                         csv = csv+total+"\n";
                                     }
-									str = str+"<tr id=''><td>"+row['position']+"</td><td>"+row['name']+"</td>";
+									str = str+"<tr id=''><td class='report'>"+row['position']+"</td><td class='report rNameWide'>"+row['name']+"</td>";
                                     csv = csv+row['position']+","+row['name']+",";
 									//alert(row['name']+"--"+i);
 									name = row['name'];
@@ -125,33 +125,34 @@
 				}, errorCB);
 			}
 			function getTableHeader(round_num, squad){
-				var str = "<tr><td colspan=2>Round "+round_num+" <br>Squad "+squad+"</td>"+
-						"<td>SGL</td>"+
-						"<td>1</td>"+
-						"<td>2</td>"+
-						"<td>1</td>"+
-						"<td>2</td>"+
-						"<td>SGL</td>"+
-						"<td>1</td>"+
-						"<td>2</td>"+
-						"<td>1</td>"+
-						"<td>2</td>"+
-						"<td>SGL</td>"+
-						"<td>1</td>"+
-						"<td>2</td>"+
-						"<td>1</td>"+
-						"<td>2</td>"+
-						"<td>SGL</td>"+
-						"<td>1</td>"+
-						"<td>2</td>"+
-						"<td>1</td>"+
-						"<td>2</td>"+
-						"<td>SGL</td>"+
-						"<td>1</td>"+
-						"<td>2</td>"+
-						"<td>1</td>"+
-						"<td>2</td>"+
-						"<td>Total</td></tr>";
+				var str = "<br><table><tr>"+
+						"<td colspan=2 class='reportH'>Round "+round_num+" Squad "+squad+"</td>"+
+						"<td class='reportH'>SGL</td>"+
+						"<td class='reportH'>1</td>"+
+						"<td class='reportH'>2</td>"+
+						"<td class='reportH'>1</td>"+
+						"<td class='reportH'>2</td>"+
+						"<td class='reportH'>SGL</td>"+
+						"<td class='reportH'>1</td>"+
+						"<td class='reportH'>2</td>"+
+						"<td class='reportH'>1</td>"+
+						"<td class='reportH'>2</td>"+
+						"<td class='reportH'>SGL</td>"+
+						"<td class='reportH'>1</td>"+
+						"<td class='reportH'>2</td>"+
+						"<td class='reportH'>1</td>"+
+						"<td class='reportH'>2</td>"+
+						"<td class='reportH'>SGL</td>"+
+						"<td class='reportH'>1</td>"+
+						"<td class='reportH'>2</td>"+
+						"<td class='reportH'>1</td>"+
+						"<td class='reportH'>2</td>"+
+						"<td class='reportH'>SGL</td>"+
+						"<td class='reportH'>1</td>"+
+						"<td class='reportH'>2</td>"+
+						"<td class='reportH'>1</td>"+
+						"<td class='reportH'>2</td>"+
+						"<td class='reportH'>Total</td></tr>";
 				return str;
             }
 			function getCsvHeader(round_num, squad){
@@ -214,6 +215,7 @@
                 
         <!-- PUT PAGE CONTENT HERE -->
         <div id='content' class='content'>
+			<div class='heading'><h1>Report</h1></div>
 			<div id=leaderboard></div><br><br>
 			<div id=report></div><br><br>
             <div id=email><input type=button value='Email' onClick=sendMail()></div>

@@ -132,15 +132,21 @@ h1 {
 	border-spacing: 0px;
     border-collapse: separate;
 }
-table {
-    border-collapse: collapse;
-	border: 1px solid black;
+.squadRow{
+	padding-top:35px;
+	border-bottom:1px solid black;
 }
-table, th, td {
+.report {
     border: 1px solid black;
-}
-td{
 	width:40px;
+}
+.reportH {
+    border: 1px solid black;
+	width:40px;
+	font-weight:bold;
+}
+.rNameWide{
+	width:150px;
 }
 .input{}
 .form_element{
@@ -148,4 +154,14 @@ td{
 	text-align:right;
 	float:left;
 	padding-right:10px
+}
+.button-left{
+	float:left; padding-left:100px;
+}
+.button-right{
+	float:right; padding-right:100px;	
+}
+.button-center{
+	clear:both;
+	margin-left:45%
 }

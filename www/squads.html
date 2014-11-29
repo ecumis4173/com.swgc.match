@@ -200,9 +200,9 @@
 					if(t!=row['squad']){
 						t = row['squad'];
 						if(t==1 || squad_score[i]>0 || squad_score[z]>0)
-							stringout = stringout+"<tr id='squad"+row['squad']+"' onClick=startMatch("+row['squad']+")><td><strong>Squad "+row['squad']+"</strong></td></tr>";
+							stringout = stringout+"<tr id='squad"+row['squad']+"' onClick=startMatch("+row['squad']+")><td class='squadRow'><strong>Squad "+row['squad']+"</strong></td></tr>";
 						else
-							stringout = stringout+"<tr id='squad"+row['squad']+"' position="+i+"><td><strong onClick=startMatch("+row['squad']+")>Squad "+row['squad']+"</strong><td onclick='shiftSquadUp("+row['squad']+")'><img src='img/up.png' alt='+'></td><td onclick='shiftSquadDown("+row['squad']+")'><img src='img/down.png' alt='-'></td></tr>";
+							stringout = stringout+"<tr id='squad"+row['squad']+"' position="+i+"><td class='squadRow'><strong onClick=startMatch("+row['squad']+")>Squad "+row['squad']+"</strong><td onclick='shiftSquadUp("+row['squad']+")'><img src='img/upS.png' alt='+'></td><td onclick='shiftSquadDown("+row['squad']+")'><img src='img/downS.png' alt='-'></td></tr>";
 					}
 					stringout = stringout+"<tr id='position"+i+"' round_id="+row['round_id']+" squad='"+row['squad']+"' pe_id='"+row['pe_id']+"' position='"+row['position']+"'><td>"+row['name']+"</td>";
 					z=i-1;
@@ -300,7 +300,7 @@
 			}
         </script>
         <link rel="import" href="templates.html" id="templates">
-        <title>Hello World</title>
+        <title>Squads</title>
     </head>
     <body onload="onDeviceReady()">
         <div id="container">
@@ -318,13 +318,17 @@
             
         <!-- PUT PAGE CONTENT HERE -->
         <div id='content' class='content'>
+			<div class='heading'><h1>Squads</h1></div>
             <div id='round'></div>
 			<div id='currentSquad'></div>
 			<div id='squad'></div>
-			<div id='reset'><input type=button value='Reset Order' onclick=resetRound()></div>
+			
 			<!--<div id='start'><input type=button value='Start' onclick=startRound()></div> -->
-			<div id='previous'><input type=button value='Previous Round' onclick=moveRound(-1)></div>
-			<div id='next'><input type=button value='Next Round' onclick=moveRound(1)></div>
+			<div id='addPersonButton' class='buttons'>
+				<div class='button-left' id='previous' ><input type=button value='Previous Round' onclick=moveRound(-1)></div>
+				<div class='button-right' id='next' ><input type=button value='Next Round' onclick=moveRound(1)></div>
+			</div>
+			<div class='button-center' id='reset'><input type=button value='Reset Order' onclick=resetRound()></div>
         </div>
 
             
