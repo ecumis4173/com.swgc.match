@@ -200,9 +200,9 @@
 					if(t!=row['squad']){
 						t = row['squad'];
 						if(t==1 || squad_score[i]>0 || squad_score[z]>0)
-							stringout = stringout+"<tr id='squad"+row['squad']+"' onClick=startMatch("+row['squad']+")><td class='squadRow'><strong>Squad "+row['squad']+"</strong></td></tr>";
+							stringout = stringout+"<tr id='squad"+row['squad']+"'><td class='squadRow'><strong>Squad "+row['squad']+"</strong></td><td></td><td></td><td onClick=startMatch("+row['squad']+")><img src='img/go.png' alt='>'></td></tr>";
 						else
-							stringout = stringout+"<tr id='squad"+row['squad']+"' position="+i+"><td class='squadRow'><strong onClick=startMatch("+row['squad']+")>Squad "+row['squad']+"</strong><td onclick='shiftSquadUp("+row['squad']+")'><img src='img/upS.png' alt='+'></td><td onclick='shiftSquadDown("+row['squad']+")'><img src='img/downS.png' alt='-'></td></tr>";
+							stringout = stringout+"<tr id='squad"+row['squad']+"' position="+i+"><td class='squadRow'><strong>Squad "+row['squad']+"</strong><td onclick='shiftSquadUp("+row['squad']+")'><img src='img/upS.png' alt='+'></td><td onclick='shiftSquadDown("+row['squad']+")'><img src='img/downS.png' alt='-'></td><td onClick=startMatch("+row['squad']+")><img src='img/go.png' alt='>'></td></tr>";
 					}
 					stringout = stringout+"<tr id='position"+i+"' round_id="+row['round_id']+" squad='"+row['squad']+"' pe_id='"+row['pe_id']+"' position='"+row['position']+"'><td>"+row['name']+"</td>";
 					z=i-1;

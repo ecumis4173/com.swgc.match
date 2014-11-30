@@ -123,6 +123,7 @@ h1 {
 	text-align:center;
 	padding:40, 0px, 40px, 0px;
 	float:left;
+	visibility:hidden;
 }
 .clayRow{
 	clear:both;
